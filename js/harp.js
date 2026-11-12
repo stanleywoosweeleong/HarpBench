@@ -295,7 +295,8 @@ $('posSel').addEventListener('change',e=>{state.rootOff=+e.target.value; changed
 $('scaleSel').addEventListener('change',e=>{state.scale=e.target.value; changed();});
 document.querySelectorAll('#mouthSeg button').forEach(b=>b.addEventListener('click',()=>{state.mouth=b.dataset.m; save(); renderControls();}));
 document.querySelectorAll('#labelSeg button').forEach(b=>b.addEventListener('click',()=>{state.labels=b.dataset.l; changed();}));
-function setVoice(v){state.voice=v; save(); applyVoice(); renderControls(); if(pocketOpen()) renderPocketSheet(); playPreview();}
+function setVoice(v){state.voice=v; save(); applyVoice(); renderControls(); if(pocketOpen()) renderPocketSheet(); playPreview();
+  if(v==='mine'&&typeof mh!=='undefined'&&![...mh.samples.values()].some(x=>x.type===state.type)) micMsg('My harp has no recordings yet for this kind of harp, so it uses the Sweet sound. Record your harmonica under My harp below.');}
 function playPreview(){ if(touches.size) return; const hi=Math.min(3,L.N-1); setTouch('preview',[resolve(hi,'blow',0,false),resolve(hi+1,'blow',0,false),resolve(hi+2,'blow',0,false)],{indexKeys:true,stagger:.09,label:VOICES[state.voice].label}); setTimeout(()=>endTouch('preview'),650); }
 document.querySelectorAll('#voiceSeg button').forEach(b=>b.addEventListener('click',()=>{initAudio(); setVoice(b.dataset.v);}));
 document.querySelectorAll('#kbSeg button').forEach(b=>b.addEventListener('click',()=>{state.keys=b.dataset.k; b.blur(); changed();}));

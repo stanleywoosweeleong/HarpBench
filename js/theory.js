@@ -116,3 +116,17 @@ function countInStart(g,a){
   const k=Math.floor((a-g.pickup)/g.barLen+1e-9);
   return g.pickup+k*g.barLen-g.barLen;
 }
+
+/* ---------- recorded notes ("My harp") ---------- */
+function samplerLoop(len,sampleRate,f0){
+  // Loop a whole number of pitch periods from the steady middle of a recorded note, so it can sustain without a click.
+  const period=sampleRate/f0, start=Math.round(len*.35);
+  const n=Math.max(1,Math.floor((len*.85-start)/period));
+  return {start,end:Math.round(start+n*period)};
+}
+function nearestSample(keys,midi,maxGap){
+  // Closest recorded note to play this pitch from (it is pitch-shifted the rest of the way)
+  let best=null;
+  for(const k of keys){ const d=Math.abs(k-midi); if(d<=maxGap&&(best==null||d<Math.abs(best-midi))) best=k; }
+  return best;
+}

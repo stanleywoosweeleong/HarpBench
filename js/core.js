@@ -78,7 +78,9 @@ const VOICES={
   blues:  {label:'Blues',   exp:-.82, comb:.5,  drive:1.6, bright:1,   breath:1,   hi:3.5, reeds:[{det:0,pan:0,g:1}]},
   sweet:  {label:'Sweet',   exp:-1.3, comb:.22, drive:.7,  bright:.62, breath:.55, hi:.5,  reeds:[{det:-2.2,pan:-.3,g:.72},{det:2.2,pan:.3,g:.72}]},
   tremolo:{label:'Tremolo', exp:-1.08,comb:.32, drive:.9,  bright:.78, breath:.7,  hi:1.5, reeds:[{det:-9,pan:-.6,g:.72},{det:9,pan:.6,g:.72}]},
-  octave: {label:'Octave',  exp:-1.0, comb:.35, drive:1,   bright:.8,  breath:.75, hi:2,   reeds:[{det:0,pan:-.25,g:.85},{det:1200,pan:.3,g:.42}]}
+  octave: {label:'Octave',  exp:-1.0, comb:.35, drive:1,   bright:.8,  breath:.75, hi:2,   reeds:[{det:0,pan:-.25,g:.85},{det:1200,pan:.3,g:.42}]},
+  // your own recordings (js/sampler.js); notes you have not recorded use the Sweet sound
+  mine:   {label:'My harp', exp:-1.3, comb:.22, drive:.7,  bright:.62, breath:.55, hi:.5,  reeds:[{det:-2.2,pan:-.3,g:.72},{det:2.2,pan:.3,g:.72}]}
 };
 const waves={};
 const voice=()=>VOICES[state.voice]||VOICES.blues;
@@ -154,9 +156,13 @@ function levelFor(s,count){
 function hold(p,now){ if(p.cancelAndHoldAtTime) p.cancelAndHoldAtTime(now); else {const v=p.value; p.cancelScheduledValues(now); p.setValueAtTime(v,now);} }
 function startVoice(s,count,delay,legato){
   initAudio(); if(!ctx) return null;
+  if(state.voice==='mine'&&typeof samplerVoice==='function'){ const sv=samplerVoice(s,count,delay,legato); if(sv) return sv; }
   const t0=ctx.currentTime+.004+(delay||0), f=mtof(s.midi);
   const vp=voice(), wv=waveFor(vp);
   const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.Q.value=.8;
+  // a bend is shaped by the throat: the tone turns darker and more "oo" the deeper it goes
+  const bf=ctx.createBiquadFilter(); bf.type='peaking'; bf.Q.value=1.1; bf.frequency.setValueAtTime(f,t0); bf.gain.setValueAtTime(3.5*s.bend,t0);
+  const bh=ctx.createBiquadFilter(); bh.type='highshelf'; bh.frequency.setValueAtTime(Math.min(8000,f*3),t0); bh.gain.setValueAtTime(-4*s.bend,t0);
   const oscs=vp.reeds.map(r=>{
     const o=ctx.createOscillator(); o.setPeriodicWave(wv); o.frequency.setValueAtTime(f,t0);
     if(!legato){o.detune.setValueAtTime(r.det-28,t0); o.detune.setTargetAtTime(r.det,t0,.028);} else o.detune.setValueAtTime(r.det,t0);
@@ -168,7 +174,7 @@ function startVoice(s,count,delay,legato){
   const env=ctx.createGain(), peak=levelFor(s,count); env.gain.setValueAtTime(0,t0); env.gain.setTargetAtTime(peak,t0,legato?.012:.024);
   const trem=ctx.createGain(); trem.gain.value=1;
   vibAmp.connect(trem.gain); oscs.forEach(o=>{vibPitch.connect(o.detune); drift.connect(o.detune);});
-  lp.connect(env).connect(trem).connect(bus);
+  lp.connect(bf).connect(bh).connect(env).connect(trem).connect(bus);
   const ns=ctx.createBufferSource(); ns.buffer=noiseBuf; ns.loop=true;
   const nb=ctx.createBiquadFilter(); nb.type='bandpass'; nb.frequency.value=Math.min(7000,Math.max(1600,f*3.4)); nb.Q.value=.9;
   const ng=ctx.createGain(); ng.gain.setValueAtTime(0,t0);
@@ -180,6 +186,8 @@ function startVoice(s,count,delay,legato){
     set(s2){const now=ctx.currentTime, tau=s2.alt!==v.s.alt?.007:(state.snap?.035:.012);
       oscs.forEach(o=>o.frequency.setTargetAtTime(mtof(s2.midi),Math.max(now,t0),tau));
       lp.frequency.setTargetAtTime(cutoffFor(mtof(s2.midi),s2.bend),Math.max(now,t0),.04);
+      bf.frequency.setTargetAtTime(mtof(s2.midi),Math.max(now,t0),.04); bf.gain.setTargetAtTime(3.5*s2.bend,Math.max(now,t0),.05);
+      bh.frequency.setTargetAtTime(Math.min(8000,mtof(s2.midi)*3),Math.max(now,t0),.04); bh.gain.setTargetAtTime(-4*s2.bend,Math.max(now,t0),.05);
       env.gain.setTargetAtTime(levelFor(s2,v.count),Math.max(now,t0)+.001,.04);
       ng.gain.setTargetAtTime(levelFor(s2,v.count)*air*(.05+.06*s2.bend),Math.max(now,t0)+.02,.05);
       v.s=s2;},

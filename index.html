@@ -75,6 +75,7 @@
         <button id="vSweet" data-v="sweet" aria-pressed="true" title="Warm and round, two reeds a hair apart">Sweet</button>
         <button id="vTrem" data-v="tremolo" aria-pressed="false" title="Two reeds tuned apart so they shimmer">Tremolo</button>
         <button id="vOct" data-v="octave" aria-pressed="false" title="A second reed an octave higher">Octave</button>
+        <button id="vMine" data-v="mine" aria-pressed="false" title="Your own harmonica, recorded in the Microphone section">My harp</button>
       </div>
     </div>
     <div class="ctl"><span class="lbl">Labels</span>
@@ -131,6 +132,13 @@
       <label class="range" for="micGate"><span class="lbl">Ignore sounds below</span><input id="micGate" type="range" min="0.002" max="0.05" step="0.001"></label>
     </div>
     <p class="audio-note" id="micMsg">Works in the installed app. Use headphones when Listen or the harmony is playing, or the microphone will hear the app.</p>
+    <div class="myharp" id="myHarp">
+      <div class="mh-head"><h3>My harp</h3><span id="mhStatus"></span></div>
+      <p>Record each note of your own harmonica once, and the <b>My harp</b> voice plays your recordings, bends included. Use the harp in the key selected above, in a quiet room. Recordings stay on this device.</p>
+      <div class="sb-ctl"><button class="btn" id="mhRec" aria-pressed="false">Record my harp</button><button class="btn" id="mhSkip" hidden>Skip this note</button><button class="btn" id="mhClear">Delete recordings</button></div>
+      <div class="mh-prompt" id="mhPrompt" aria-live="polite"></div>
+      <div class="mh-grid" id="mhGrid"></div>
+    </div>
   </section>
 
   <section class="songbook" aria-label="Songbook" id="songbook">
@@ -261,6 +269,7 @@
 <script src="js/songbook.js"></script>
 <script src="js/transport.js"></script>
 <script src="js/mic.js"></script>
+<script src="js/sampler.js"></script>
 <script src="js/main.js"></script>
 <script src="pwa.js"></script>
 </body>

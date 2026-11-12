@@ -52,6 +52,12 @@ Press **Use microphone** and play your real harmonica. The tuner shows the note,
 
 **Add your own song** takes a tune in [ABC notation](https://abcnotation.com/learn), pasted or opened from a `.abc` file. Lyrics on `w:` lines become the verses and any extra voices become the backing harmony. Imported songs are tabbed like the hymns and saved in your browser; **Remove from songbook** deletes one. The importer (`js/abc.js`) is a port of `tools/abcparse.py`, and the tests check that both produce identical songs.
 
+### My harp: your own harmonica as the voice
+
+Under **Microphone → My harp**, **Record my harp** walks you through every blow and draw note of the selected harp, one at a time; hold each note for about two seconds and it is saved automatically. The **My harp** voice then plays your recordings, pitch-shifted for bends, with vibrato, wah and room applied. Notes you have not recorded use the Sweet sound. Recordings stay in this browser (IndexedDB) and can be deleted.
+
+The built-in voices are synthesized. Bends on them now darken and hollow out the tone as they deepen, the way a real bend does, as well as dropping the pitch.
+
 ## Install and play offline
 
 The app is plain static files with a service worker, so any static host works. With GitHub Pages:
@@ -90,6 +96,7 @@ Then open <http://localhost:8000>. Service workers need `http://localhost` or HT
 - `js/metronome.js`, `js/songbook.js`: metronome and songbook
 - `js/abc.js`: ABC notation importer
 - `js/pitch.js`, `js/mic.js`: microphone pitch detection and tuner
+- `js/sampler.js`: My harp recorder and the voice that plays your recordings
 - `js/transport.js`: Listen and Play along on the audio clock (metronome, count-in, harmony, grading)
 - `js/main.js`: start-up
 - `tools/build_songs.py`, `tools/abcparse.py`, `tools/openhymnal/`: rebuild `songs.js` from the Open Hymnal sources

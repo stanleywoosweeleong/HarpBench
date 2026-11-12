@@ -73,3 +73,20 @@ test('Blessed Assurance needs an overblow in 1st position', () => {
   assert.equal(t.get(`needsOverblows(SONGS.find(x=>x.id==='assurance'),0)`), true);
   assert.equal(t.get(`needsOverblows(SONGS.find(x=>x.id==='amazing'),0)`), false);
 });
+
+test('recorded-note loops hold a whole number of pitch periods', () => {
+  const t = loadTheory({});
+  for (const f0 of [196, 261.63, 440, 1046.5]) {
+    const { start, end } = t.get(`samplerLoop(76800,48000,${f0})`);
+    const periods = (end - start) / (48000 / f0);
+    assert.ok(Math.abs(periods - Math.round(periods)) < 0.02, `${f0} Hz: ${periods} periods`);
+    assert.ok(start > 0 && end < 76800);
+  }
+});
+
+test('playback picks the nearest recorded note within range', () => {
+  const t = loadTheory({});
+  assert.equal(t.get('nearestSample([60,64,67],66,4)'), 67);
+  assert.equal(t.get('nearestSample([60,64,67],62,4)'), 60);
+  assert.equal(t.get('nearestSample([60],70,4)'), null);
+});
