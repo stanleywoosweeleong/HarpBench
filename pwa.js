@@ -35,7 +35,7 @@
   // Install button (Chrome, Edge, Android)
   let deferred = null;
   window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault(); deferred = e; $('installBtn').hidden = false;
+    e.preventDefault(); deferred = e; $('installBtn').hidden = false; $('deskHint').hidden = true;
   });
   $('installBtn').addEventListener('click', async () => {
     if (!deferred) return;
@@ -56,6 +56,26 @@
     const ua = navigator.userAgent;
     if (!/Safari\//.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua)) $('iosInApp').hidden = false;
   }
+  // Computers: Chrome and Edge only offer the install button after the page has been used for a while,
+  // so if it has not appeared after a few seconds, show where install lives in the browser menu.
+  const desktop = !isIOS && !/Android/i.test(navigator.userAgent) && !standalone;
+  let deskDismissed = false;
+  try { deskDismissed = localStorage.getItem('harpbench-deskhint') === '1'; } catch (e) {}
+  if (desktop && !deskDismissed && location.protocol !== 'file:') setTimeout(() => {
+    if (deferred || standalone) return;
+    const ua = navigator.userAgent, edge = /Edg\//.test(ua), chrome = /Chrome\//.test(ua) && !edge && !/OPR\//.test(ua);
+    const steps = edge
+      ? ['Click <b>…</b> (Settings and more) at the top right.', 'Choose <b>Apps</b>, then <b>Install this site as an app</b>.', 'Click <b>Install</b>.']
+      : chrome
+        ? ['Click <b>⋮</b> at the top right.', 'Choose <b>Cast, save, and share</b>, then <b>Install page as app…</b> (it may say <b>Install Harp Bench…</b>).', 'Click <b>Install</b>. If Chrome offers <b>Open in app</b> instead, it is already installed.']
+        : ['Installing works in Chrome and Edge, from the browser menu.', 'In this browser, bookmark the page; it still works offline once loaded.'];
+    $('deskSteps').innerHTML = steps.map(s => '<li>' + s + '</li>').join('');
+    $('deskHint').hidden = false;
+  }, 4000);
+  $('deskHintClose').addEventListener('click', () => {
+    $('deskHint').hidden = true;
+    try { localStorage.setItem('harpbench-deskhint', '1'); } catch (e) {}
+  });
   $('iosHintClose').addEventListener('click', () => {
     $('iosHint').hidden = true;
     try { localStorage.setItem('harpbench-ioshint', '1'); } catch (e) {}
