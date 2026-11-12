@@ -10,7 +10,7 @@ A playable harmonica that runs in the browser and installs as an app that works 
 - **Expression:** throat vibrato, hand-cup wah, breath strength, tone and room reverb.
 - **Metronome:** 30–260 BPM, tap tempo, 2/3/4/6 beats, quarters, eighths or blues shuffle.
 - **Hymn songbook:** 20 public-domain hymns tabbed for whichever harp and key you choose. **Listen** plays the melody and lights each hole; **Practice** waits for you to play each note before moving on. Notes show as harp tab plus letter names or numbers (1 2 3), with the first verse under the notes.
-- **Phone mode:** turn a phone sideways and the whole screen becomes the harmonica. Top half blows, bottom half draws, drag away from the comb to bend. An optional thumb pad mode lets you hold the left pad to draw so you can play without looking.
+- **Phone mode:** turn a phone sideways and the whole screen becomes the harmonica. Top half blows, bottom half draws, drag away from the comb to bend. An optional thumb pad mode lets you hold the left pad to draw so you can play without looking. In Settings, the hymn controls come first: Listen, Play along, Practice, song options, speed, verse and the microphone. During Play along the top bar keeps a running tally and the harp's edge flashes green, amber or red as each note is graded; with the microphone on, the top bar becomes a tuner.
 
 ## Playing
 

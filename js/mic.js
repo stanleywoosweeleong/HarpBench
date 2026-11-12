@@ -83,6 +83,13 @@ function micTick(){
 }
 
 function micTuner(freq,m){
+  const pt=document.getElementById('pkTune'), pk=document.getElementById('pocket');
+  if(pk) pk.classList.toggle('mic-on',mic.on);
+  if(pt){
+    if(!freq) pt.innerHTML=mic.on?'<span>Microphone on · play a note</span>':'';
+    else { const rm=Math.round(m), c=Math.round((m-rm)*100), sp=micSpec(m);
+      pt.innerHTML=`<b>${nName(rm)}<small>${nOct(rm)}</small></b><span class="${Math.abs(c)<=10?'ok':''}">${c>0?'+':''}${c}¢</span><i>${sp.hi>=0?sp.tab:'not on this harp'}</i>`; }
+  }
   if(!freq){ $('tnNote').textContent='–'; $('tnOct').textContent=''; $('tnCents').textContent=''; $('tnHz').textContent=''; $('tnTab').textContent='';
     $('tnNeedle').style.left='50%'; $('tnNeedle').dataset.ok=''; return; }
   const rm=Math.round(m), c=Math.round((m-rm)*100), sp=micSpec(m);

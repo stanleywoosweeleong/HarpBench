@@ -103,6 +103,8 @@ function tpGrade(){
     tp.grades[p.i]=g;
     const c=document.querySelector(`#sbScore .nc[data-i="${p.i}"]`);
     if(c){c.classList.remove('g-good','g-early','g-late','g-miss'); c.classList.add('g-'+g);}
+    const ph=document.getElementById('pkHarp');
+    if(ph){ ph.dataset.flash=g==='good'?'good':g==='miss'?'bad':'off'; clearTimeout(ph._t); ph._t=setTimeout(()=>{ph.dataset.flash='';},260); }
     songMark(false);
     return false;
   });

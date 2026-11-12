@@ -150,7 +150,12 @@ function updatePocketSong(){
   if(!on) return;
   const up=[]; for(let i=song.pos;i<song.cur.notes.length&&up.length<5;i++) if(song.specs[i]) up.push(song.specs[i]);
   const syl=song.pos<song.cur.notes.length?sylAt(song.cur,song.pos):'';
-  $('pkSong').innerHTML=song.mode==='done'?'Well played!':song.mode==='result'?`Score ${song.result.score}%`:`<span>${song.mode==='listen'?'Listen':song.mode==='along'?'Now':'Play'}</span><b>${up[0]?up[0].tab:''}</b><i>${up.slice(1).map(x=>x.tab).join(' ')}</i><span>${syl?'“'+syl+'”':''}</span>`;
+  let tail='';
+  if(song.mode==='along'){const t=tpTally(); tail=`<em class="pk-tally"><b class="good">${t.good}</b> <b class="off">${t.off}</b> <b class="bad">${t.miss}</b></em>`;}
+  const pr=state.progress[song.cur.id];
+  $('pkSong').innerHTML=song.mode==='done'?'Well played!'
+    :song.mode==='result'?`<span>Score</span><b>${song.result.score}%</b><span>${song.result.good} on time · ${song.result.off} early/late · ${song.result.miss} missed${pr?` · best ${pr.best}%`:''}</span>`
+    :`<span>${song.mode==='listen'?'Listen':song.mode==='along'?'Now':'Play'}</span><b>${up[0]?up[0].tab:''}</b><i>${up.slice(1).map(x=>x.tab).join(' ')}</i><span>${syl?'“'+syl+'”':''}</span>${tail}`;
 }
 $('sbListen').addEventListener('click',songListen);
 $('sbAlong').addEventListener('click',songAlong);

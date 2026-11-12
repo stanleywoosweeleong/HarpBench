@@ -370,3 +370,21 @@ html.pocket-open, html.pocket-open body{overflow:hidden;height:100%;overscroll-b
 .sb-mine{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--brass);margin-left:4px}
 .sb-item[aria-current="true"] .sb-mine{color:var(--bg)}
 .linkbtn{border:0;background:none;padding:0;color:var(--blue);text-decoration:underline;cursor:pointer;font:inherit}
+
+/* phone mode: song options, tally, grade flash, tuner */
+.pk-opts{display:flex;flex-wrap:wrap;gap:6px}
+.pk-opts .btn[aria-pressed="true"]{background:transparent;color:var(--brass);border-color:var(--brass)}
+.pk-opts .btn[aria-pressed="true"]::before{content:"✓ "}
+.pk-tally{font-style:normal;display:inline-flex;gap:6px;font-family:var(--f-mono);font-size:13px}
+.pk-tally .good{color:#5BC08A}.pk-tally .off{color:#E2A64A}.pk-tally .bad{color:#E8796D}
+.pk-harp{transition:box-shadow .12s}
+.pk-harp[data-flash="good"]{box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),0 0 0 4px #5BC08A}
+.pk-harp[data-flash="off"]{box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),0 0 0 4px #E2A64A}
+.pk-harp[data-flash="bad"]{box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),0 0 0 4px #E8796D}
+.pk-tune{display:none;align-items:baseline;gap:8px;font-size:12px;color:#93A0B4;min-width:0;flex:1;white-space:nowrap;overflow:hidden}
+.pk-tune b{font-family:var(--f-display);font-size:22px;color:#E6EAF0}
+.pk-tune b small{font-size:12px;color:#93A0B4}
+.pk-tune span.ok{color:#5BC08A}
+.pk-tune i{font-style:normal;font-family:var(--f-mono);color:#E7B54A}
+.pocket.mic-on:not(.has-song) .pk-tune{display:flex}
+.pocket.mic-on:not(.has-song) .pk-info{display:none}
