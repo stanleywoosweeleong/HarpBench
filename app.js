@@ -576,7 +576,7 @@ function setVoice(v){state.voice=v; save(); applyVoice(); renderControls(); if(p
 function playPreview(){ if(touches.size) return; const hi=Math.min(3,L.N-1); setTouch('preview',[resolve(hi,'blow',0,false),resolve(hi+1,'blow',0,false),resolve(hi+2,'blow',0,false)],{indexKeys:true,stagger:.09,label:VOICES[state.voice].label}); setTimeout(()=>endTouch('preview'),650); }
 document.querySelectorAll('#voiceSeg button').forEach(b=>b.addEventListener('click',()=>{initAudio(); setVoice(b.dataset.v);}));
 document.querySelectorAll('#kbSeg button').forEach(b=>b.addEventListener('click',()=>{state.keys=b.dataset.k; b.blur(); changed();}));
-$('obBtn').addEventListener('click',()=>{state.overblows=!state.overblows; changed();});
+$('obBtn').addEventListener('click',()=>{state.overblows=!state.overblows; state.obAuto=false; changed();});
 $('snapBtn').addEventListener('click',()=>{state.snap=!state.snap; save(); renderControls();});
 $('vibBtn').addEventListener('click',()=>{state.vibrato=!state.vibrato; initAudio(); setVibrato(state.vibrato); save(); renderControls();});
 const cup=$('cupBtn');
@@ -655,7 +655,7 @@ function renderPocketSheet(){
   const sc=document.createElement('div'); sc.className='ctl'; sc.innerHTML='<label class="lbl" for="pkScale">Highlight scale</label>';
   const ss=$('scaleSel').cloneNode(true); ss.id='pkScale'; ss.value=state.scale; ss.addEventListener('change',e=>{state.scale=e.target.value; changed();}); sc.appendChild(ss); c.appendChild(sc);
   c.appendChild(seg('Labels',[['notes','Notes'],['tab','Tab']],state.labels,v=>{state.labels=v; changed();}));
-  if(!L.chrom) c.appendChild(seg('Overblows',[['off','Off'],['on','On']],state.overblows?'on':'off',v=>{state.overblows=v==='on'; changed();}));
+  if(!L.chrom) c.appendChild(seg('Overblows',[['off','Off'],['on','On']],state.overblows?'on':'off',v=>{state.overblows=v==='on'; state.obAuto=false; changed();}));
   c.appendChild(seg('Bends',[['snap','Snap to pitch'],['free','Free']],state.snap?'snap':'free',v=>{state.snap=v==='snap'; save(); renderPocketSheet();}));
   for(const [id,lab,key] of [['pkVol','Breath','vol'],['pkTone','Tone','tone'],['pkRoom','Room','room']]){
     const r=document.createElement('label'); r.className='range'; r.htmlFor=id;
@@ -845,15 +845,33 @@ function songHardness(s,m){
   const hard=L.chrom?miss*5:bends+alts+miss*5;
   return {bends,alts,miss,hard,label:hard===0?'Easy':hard<=5?'Some bends':'Advanced',level:hard===0?'easy':hard<=5?'mid':'hard'};
 }
+function withOverblows(on,fn){const was=state.overblows; state.overblows=on; try{return fn();}finally{state.overblows=was;}}
 function bestPosition(s){
-  let best=null;
-  for(const [off] of SONG_POS){const h=songHardness(s,mapSong(s,off)); if(!best||h.hard<best.h.hard) best={off,h};}
-  return best;
+  // Rate positions as if overblows were available, since the songbook switches them on when a hymn needs them.
+  return withOverblows(!L.chrom,()=>{
+    let best=null;
+    for(const [off] of SONG_POS){const h=songHardness(s,mapSong(s,off)); if(!best||h.hard<best.h.hard) best={off,h};}
+    return best;
+  });
+}
+function needsOverblows(s,off){
+  if(L.chrom) return false;
+  const without=withOverblows(false,()=>songHardness(s,mapSong(s,off)).miss);
+  const withOb=withOverblows(true,()=>songHardness(s,mapSong(s,off)).miss);
+  return without>0&&withOb<without;
+}
+function syncOverblows(s,off){
+  // Turn overblows on when this hymn needs them in this position. Turn them back off later only if the songbook turned them on.
+  if(L.chrom) return;
+  const need=needsOverblows(s,off);
+  if(need&&!state.overblows){state.overblows=true; state.obAuto=true;}
+  else if(!need&&state.overblows&&state.obAuto){state.overblows=false; state.obAuto=false;}
 }
 function selectSong(id){
   songStop(); state.song=id; song.pos=0;
   // Sync "Play in" to the easiest position for this hymn and highlight its major scale.
-  state.rootOff=bestPosition(songById(id)).off; state.scale='major';
+  const s=songById(id); state.rootOff=bestPosition(s).off; state.scale='major';
+  syncOverblows(s,state.rootOff);
   save(); changed();
 }
 function jp(rel){const o=Math.floor(rel/12), p=((rel%12)+12)%12; return JIANPU[p]+(o>0?'̇'.repeat(o):o<0?'̣'.repeat(-o):'');}
@@ -881,14 +899,14 @@ function renderSongbook(){
   SONG_POS.forEach(([off,ord])=>{const h=songHardness(s,mapSong(s,off)), b=document.createElement('button');
     b.innerHTML=`${L.chrom?'Key of '+nName(L.base+off):ord+' · '+nName(L.base+off)}<small>${h.label}</small>`;
     b.setAttribute('aria-pressed',off===state.rootOff);
-    b.addEventListener('click',()=>{songStop(); state.rootOff=off; save(); changed();}); pb.appendChild(b);});
+    b.addEventListener('click',()=>{songStop(); state.rootOff=off; syncOverblows(s,off); save(); changed();}); pb.appendChild(b);});
   $('sbTitle').textContent=s.title;
   $('sbCredits').textContent=`Words: ${s.words} · Music: ${s.music}`;
   const used=m.specs.filter(Boolean), bends=used.filter(x=>x.bend>0).length, alts=used.filter(x=>x.alt).length, miss=s.notes.filter((n,i)=>n[0]!=null&&!m.specs[i]).length;
   const holes=used.map(x=>x.hi+1);
   const pn=posNumber();
   $('sbInfo').innerHTML=`Key of <b>${nName(m.tonic)}</b> on your ${KEY_LABEL[state.key]} ${L.chrom?'chromatic':'diatonic'}${L.chrom?'':' ('+ORD[pn-1]+' position'+(POS_NICK[pn]?', '+POS_NICK[pn]:'')+')'} · ${s.meter} time · holes <b>${Math.min(...holes)}–${Math.max(...holes)}</b>`
-    +(bends?` · <b>${bends}</b> bent note${bends>1?'s':''}`:' · no bends')+(alts?` · <b>${alts}</b> ${L.chrom?'slide':'overblown'} note${alts>1?'s':''}`:'')
+    +(bends?` · <b>${bends}</b> bent note${bends>1?'s':''}`:' · no bends')+(alts?` · <b>${alts}</b> ${L.chrom?'slide':'overblown'} note${alts>1?'s':''}`+(!L.chrom&&state.obAuto?' (overblows turned on for this hymn)':''):'')
     +(miss?` · <b>${miss}</b> note${miss>1?'s':''} not on this harp (turn on overblows)`:'');
   [...$('sbSpeed').children].forEach(b=>b.setAttribute('aria-pressed',+b.dataset.r===state.songRate));
   [...$('sbNotation').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.n===state.notation));
