@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Harp Bench</title>
+<meta name="description" content="A playable diatonic and chromatic harmonica with bends, overblows, chords, a metronome and a phone mode that turns a sideways phone into the instrument. Works offline.">
+<meta name="theme-color" content="#E3E7ED" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1219" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Harp Bench">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <h1>Harp Bench</h1>
+      <p>A playable 10-hole diatonic and 12-hole chromatic harmonica. Blow, draw, bend, overblow, slide and play chords in any key.</p>
+      <div class="app-bar"><button class="btn" id="installBtn" hidden>Install app</button><span class="offline-pill" id="offlinePill" hidden>Ready offline</span><span class="audio-note" id="iosHint" hidden>To install on iPhone: Share, then Add to Home Screen.</span></div>
+    </div>
+    <div class="readout" aria-live="polite">
+      <div><div class="lbl">Sounding</div><div class="np-note" id="npNote">—</div></div>
+      <div class="np-meta">
+        <span class="lbl">Harp tab</span>
+        <span class="np-tab" id="npTab">tap a hole</span>
+        <span class="np-hz" id="npHz">sound starts on first touch</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="rotate-tip"><span><b>Holding a phone?</b> Turn it sideways and it becomes the harmonica.</span><button class="btn" id="pocketBtn2">Phone harp mode</button></div>
+  <section class="controls" aria-label="Instrument settings">
+    <div class="ctl"><span class="lbl">Instrument</span>
+      <div class="seg" id="typeSeg">
+        <button id="tDia" data-type="diatonic" aria-pressed="true">Diatonic · 10 hole</button>
+        <button id="tChr" data-type="chromatic" aria-pressed="false">Chromatic · 12 hole</button>
+      </div>
+    </div>
+    <div class="ctl" style="flex:1 1 360px"><span class="lbl">Harp key <span style="letter-spacing:0;text-transform:none;font-weight:400">( − / = )</span></span>
+      <div class="keys" id="keyRow"></div>
+    </div>
+    <div class="ctl"><label class="lbl" for="posSel">Play in</label><select id="posSel"></select></div>
+    <div class="ctl"><label class="lbl" for="scaleSel">Highlight scale</label>
+      <select id="scaleSel">
+        <option value="blues">Blues</option>
+        <option value="minpent">Minor pentatonic</option>
+        <option value="majpent">Major pentatonic</option>
+        <option value="major">Major (Ionian)</option>
+        <option value="mixolydian">Mixolydian</option>
+        <option value="dorian">Dorian</option>
+        <option value="minor">Natural minor</option>
+        <option value="off">None</option>
+      </select>
+    </div>
+    <div class="ctl"><span class="lbl">Mouth</span>
+      <div class="seg" id="mouthSeg">
+        <button id="m1" data-m="1" aria-pressed="true">Single</button>
+        <button id="m2" data-m="2" aria-pressed="false">2</button>
+        <button id="m3" data-m="3" aria-pressed="false">3</button>
+        <button id="m4" data-m="4" aria-pressed="false">4</button>
+        <button id="mo" data-m="oct" aria-pressed="false">Octave split</button>
+      </div>
+    </div>
+    <div class="ctl"><span class="lbl">Voice</span>
+      <div class="seg" id="voiceSeg">
+        <button id="vBlues" data-v="blues" aria-pressed="false" title="Bright and gritty, one reed">Blues</button>
+        <button id="vSweet" data-v="sweet" aria-pressed="true" title="Warm and round, two reeds a hair apart">Sweet</button>
+        <button id="vTrem" data-v="tremolo" aria-pressed="false" title="Two reeds tuned apart so they shimmer">Tremolo</button>
+        <button id="vOct" data-v="octave" aria-pressed="false" title="A second reed an octave higher">Octave</button>
+      </div>
+    </div>
+    <div class="ctl"><span class="lbl">Labels</span>
+      <div class="seg" id="labelSeg">
+        <button id="lN" data-l="notes" aria-pressed="true">Notes</button>
+        <button id="lT" data-l="tab" aria-pressed="false">Tab</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="bench" aria-label="Harmonica">
+    <div class="bench-head">
+      <span id="benchInfo"></span>
+      <span id="benchHint"></span>
+    </div>
+    <div class="stage-outer">
+      <div class="stage" id="stage">
+        <div class="chipgrid" id="topGrid"></div>
+        <div class="harp" id="harp">
+          <div class="plate top" id="plateTop"></div>
+          <div class="comb" id="comb"><div class="mouth" id="mouth"></div></div>
+          <div class="plate bot" id="plateBot"></div>
+        </div>
+        <div class="chipgrid" id="botGrid"></div>
+      </div>
+    </div>
+    <div class="legend" id="legend">
+      <span><i class="sw root"></i>Home note</span>
+      <span><i class="sw"></i>In scale</span>
+      <span><i class="sw out"></i>Outside scale</span>
+      <span id="lgBend"><i class="sw bend"></i>Bend (drag away from the harp)</span>
+      <span id="lgAlt"><i class="sw alt"></i><span id="lgAltTxt">Overblow / overdraw</span></span>
+    </div>
+    <div class="fx">
+      <button class="btn" id="vibBtn" aria-pressed="false">Throat vibrato <kbd>Space</kbd></button>
+      <button class="btn" id="cupBtn" aria-pressed="false">Cup hands (wah) <kbd>M</kbd></button>
+      <button class="btn" id="obBtn" aria-pressed="false">Overblows <kbd>Shift</kbd></button>
+      <button class="btn" id="snapBtn" aria-pressed="true">Snap bends to pitch</button>
+      <button class="btn" id="scaleBtn">Hear the scale</button>
+      <button class="btn" id="pocketBtn">Phone harp mode</button>
+      <label class="range" for="vol"><span class="lbl">Breath</span><input id="vol" type="range" min="0.15" max="1" step="0.01" value="0.72"></label>
+      <label class="range" for="tone"><span class="lbl">Tone</span><input id="tone" type="range" min="0" max="1" step="0.01" value="0.5"></label>
+      <label class="range" for="room"><span class="lbl">Room</span><input id="room" type="range" min="0" max="1" step="0.01" value="0.28"></label>
+    </div>
+  </section>
+
+  <section class="metro" aria-label="Metronome" id="metroBox"></section>
+
+  <section aria-label="Chords">
+    <div class="section-head">
+      <h2 id="chordTitle">Chords</h2>
+      <p>Hold a pad to sound the chord. Block chords use one breath across neighbouring holes; anything else is rolled across the holes it needs.</p>
+    </div>
+    <div class="pads" id="pads"></div>
+    <div class="builder">
+      <div class="ctl"><label class="lbl" for="cRoot">Any chord · root</label><select id="cRoot"></select></div>
+      <div class="ctl"><label class="lbl" for="cQual">Quality</label>
+        <select id="cQual">
+          <option value="maj">Major</option><option value="min">Minor</option><option value="7">Dominant 7</option>
+          <option value="m7">Minor 7</option><option value="maj7">Major 7</option><option value="6">Major 6</option>
+          <option value="sus4">Sus 4</option><option value="dim">Diminished</option><option value="m7b5">Half-diminished</option>
+        </select></div>
+      <div id="customPadWrap"></div>
+    </div>
+  </section>
+
+  <section aria-label="Keyboard">
+    <div class="section-head"><h2>Keyboard</h2><p>Top letter row blows, home row draws. Hold modifiers while a note sounds.</p></div>
+    <div class="keymap" id="keymap"></div>
+    <div class="mods">
+      <span><kbd>Z</kbd> <kbd>X</kbd> <kbd>C</kbd> bend ½, 1, 1½ steps</span>
+      <span id="modShift"><kbd>Shift</kbd> overblow / overdraw</span>
+      <span><kbd>Space</kbd> throat vibrato while held</span>
+      <span><kbd>M</kbd> cup hands (release for a wah)</span>
+      <span><kbd>1</kbd>–<kbd>9</kbd>, <kbd>0</kbd> chord pads</span>
+      <span><kbd>−</kbd> <kbd>=</kbd> change harp key</span>
+      <span><kbd>B</kbd> start / stop the metronome</span>
+    </div>
+    <p class="audio-note">Turn off your phone's silent switch if you hear nothing. Multi-touch works: hold the slide button with one finger and play with another.</p>
+  </section>
+</div>
+<div class="pocket" id="pocket" hidden>
+  <div class="pk-bar">
+    <span class="pk-key" id="pkKey">C</span>
+    <span class="pk-info" id="pkInfo"></span>
+    <span class="pk-np"><b id="pkNote">—</b><span id="pkTab"></span></span>
+    <button class="pk-metro" id="pkMetroBtn" aria-pressed="false"><span class="mt-dot"></span><span id="pkMetroTxt">♩ 90</span></button>
+    <button class="pk-gear" id="pkGear">Settings</button>
+  </div>
+  <div class="pk-body">
+    <div class="pk-pad"><div class="pk-btn" id="pkLeft"></div></div>
+    <div class="pk-harp" id="pkHarp">
+      <div class="pk-comb"></div>
+      <div class="pk-cols" id="pkCols"></div>
+    </div>
+    <div class="pk-pad"><div class="pk-btn" id="pkAlt"></div><div class="pk-btn" id="pkVib">VIBRATO<small>hold</small></div></div>
+  </div>
+  <div class="pk-sheet" id="pkSheet" hidden>
+    <div class="pk-sheet-in">
+      <div class="pk-sheet-head"><h2>Pocket harp</h2><button class="btn" id="pkDone">Back to playing</button></div>
+      <div class="pk-grid" id="pkCtl"></div>
+      <div class="metro" id="pkMetroBox"></div>
+      <div><div class="lbl" style="margin-bottom:6px">Chords · hold a pad</div><div class="pads" id="pkPads"></div></div>
+      <div class="pk-grid">
+        <button class="btn" id="pkExit">Leave phone mode</button>
+        <span class="audio-note">Flip the silent switch off if you hear nothing. Sound comes from the phone speaker, so keep it uncovered.</span>
+      </div>
+    </div>
+  </div>
+  <div class="pk-rotate">
+    <div class="phone"></div>
+    <div style="font-family:var(--f-display);font-weight:800;font-size:28px;text-transform:uppercase">Turn your phone sideways</div>
+    <div style="color:#93A0B4;max-width:34ch">Hold it like a harmonica: holes run along the long edge, blow on the top half, draw on the bottom half.</div>
+    <button class="pk-gear" id="pkExit2">Use the full view instead</button>
+  </div>
+</div>
+<script src="app.js"></script>
+<script src="pwa.js"></script>
+</body>
+</html>

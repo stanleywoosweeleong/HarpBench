@@ -1,0 +1,19 @@
+{
+  "name": "Harp Bench",
+  "short_name": "Harp Bench",
+  "description": "A playable diatonic and chromatic harmonica with bends, overblows, chords and a metronome. Turn your phone sideways to hold it like a harmonica.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0E1219",
+  "theme_color": "#0E1219",
+  "categories": ["music", "entertainment", "education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
