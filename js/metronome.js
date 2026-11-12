@@ -5,6 +5,7 @@ const metro={on:false,next:0,beat:0,timer:null,taps:[]};
 const TEMPO_NAMES=[[60,'Largo'],[76,'Adagio'],[108,'Andante'],[120,'Moderato'],[156,'Allegro'],[176,'Vivace'],[999,'Presto']];
 const tempoName=b=>TEMPO_NAMES.find(([m])=>b<m)[1];
 function clickAt(t,kind){
+  markAudio();
   const o=ctx.createOscillator(), g=ctx.createGain(), f=ctx.createBiquadFilter();
   o.type='triangle'; o.frequency.setValueAtTime(kind==='accent'?1760:kind==='beat'?1180:900,t);
   f.type='bandpass'; f.frequency.value=kind==='accent'?2200:1500; f.Q.value=1.4;
@@ -33,7 +34,7 @@ function litBeat(b){
 function metroToggle(force){
   const on=force!=null?force:!metro.on;
   if(on===metro.on) return;
-  if(on){ initAudio(); if(!ctx) return; metro.on=true; metro.beat=0; metro.next=ctx.currentTime+.08; metroTick(); metro.timer=setInterval(metroTick,25); }
+  if(on){ initAudio(); if(!ctx) return; metro.on=true; metro.beat=0; metro.next=ctx.currentTime+(ctx.state==='running'?.08:.4); metroTick(); metro.timer=setInterval(metroTick,25); }
   else { metro.on=false; clearInterval(metro.timer); litBeat(-1); }
   renderMetroState();
 }

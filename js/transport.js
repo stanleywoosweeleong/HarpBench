@@ -46,7 +46,7 @@ function tpStart(mode){
   state.bpm=Math.round(s.bpm*state.songRate/g.beat); state.beats=[2,3,4,6].includes(g.perBar)?g.perBar:4; state.feel='straight';
   save(); renderMetroState();
   const cs=state.countIn?countInStart(g,tp.a):tp.a;
-  tp.anchor=ctx.currentTime+.15+(tp.a-cs)*tp.spb;
+  tp.anchor=ctx.currentTime+(ctx.state==='running'?.15:.45)+(tp.a-cs)*tp.spb;
   tp.iter=0; tp.idx=0; tp.pending=[]; tp.onsets=[]; tp.grades={};
   if(state.countIn) beatsBetween(g,cs,tp.a).forEach(bt=>{const at=tp.anchor+(bt.t-tp.a)*tp.spb; tp.voices.push(clickAt(at,bt.down&&g.perBar>1?'accent':'beat')); tpUi(at,()=>litBeat(bt.beatInBar));});
   tp.events=tpBuildEvents(s,g);

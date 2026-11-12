@@ -5,6 +5,8 @@ let leftHeld=false, leftK=0, leftY0=0, altHeld=false, wakeLock=null;
 const pocketMQ=window.matchMedia('(orientation: landscape) and (max-height: 600px) and (pointer: coarse)');
 let pkLbl=new Map(), pkHalves=[], pkHoles=[];
 function pocketOpen(){return !$('pocket').hidden}
+// Phone mode is an instrument: two thumbs on the screen must not pinch-zoom the page (iOS ignores user-scalable).
+['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>{ if(pocketOpen()) e.preventDefault(); },{passive:false}));
 function updatePocket(){
   const show=state.pocket==='on'||(state.pocket!=='off'&&pocketMQ.matches);
   if(show===pocketOpen()) return;

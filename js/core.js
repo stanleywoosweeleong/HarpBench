@@ -123,6 +123,14 @@ function initAudio(){
   const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
   try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
   ctx=new AC({latencyHint:'interactive'});
+  // With the 'playback' audio session, iPhone shows Harp Bench in Now Playing (the Dynamic Island) while sound is on.
+  // Give it a proper name and icon, and let its pause button stop everything.
+  if('mediaSession' in navigator&&typeof MediaMetadata==='function'){ try{
+    navigator.mediaSession.metadata=new MediaMetadata({title:'Harp Bench',artist:'Harmonica',
+      artwork:[{src:'icons/icon-192.png',sizes:'192x192',type:'image/png'},{src:'icons/icon-512.png',sizes:'512x512',type:'image/png'}]});
+    navigator.mediaSession.setActionHandler('pause',()=>{ audioRest(); });
+    navigator.mediaSession.setActionHandler('play',()=>{ if(ctx) ctx.resume(); });
+  }catch(e){} }
   noiseBuf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);
   {const d=noiseBuf.getChannelData(0); let b=0; for(let i=0;i<d.length;i++){const w=Math.random()*2-1; b=.6*b+.4*w; d[i]=w*.7+b*.3;}}
   bus=ctx.createGain(); bus.gain.value=1;
@@ -155,6 +163,26 @@ function levelFor(s,count){
   if(s.midi<57) g*=.85;
   return g;
 }
+/* ---------- rest the audio engine when nothing is playing ----------
+   The vibrato and drift oscillators run constantly, so without this the phone treats Harp Bench as always playing
+   (Now Playing in the Dynamic Island, battery use). Suspend after a quiet spell; initAudio() resumes on the next note. */
+let audioActiveAt=0;
+function markAudio(){ if(typeof performance!=='undefined') audioActiveAt=performance.now(); }
+function audioBusy(){
+  return touches.size>0||(typeof tp!=='undefined'&&tp.on)||(typeof metro!=='undefined'&&metro.on)
+    ||(typeof mic!=='undefined'&&mic.on)||(typeof mh!=='undefined'&&!!mh.rec);
+}
+function audioRest(){
+  // stop everything and let the phone release the audio (used by the Now Playing pause button)
+  if(typeof songStop==='function'&&typeof tp!=='undefined'&&tp.on) songStop();
+  if(typeof metro!=='undefined'&&metro.on) metroToggle(false);
+  endAll(); if(ctx&&ctx.state==='running') ctx.suspend().catch(()=>{});
+}
+if(typeof setInterval==='function'&&typeof performance!=='undefined') setInterval(()=>{
+  if(!ctx||ctx.state!=='running') return;
+  if(audioBusy()){ markAudio(); return; }
+  if(performance.now()-audioActiveAt>12000) ctx.suspend().catch(()=>{});
+},3000);
 function hold(p,now){
   // Freeze an automated value at time `now` before a release. Without cancelAndHoldAtTime (Firefox), only pin the
   // current value for an immediate release: for a release scheduled later, p.value is not yet the value at `now`,
@@ -164,7 +192,7 @@ function hold(p,now){
   if(now<=ctx.currentTime+.005) p.setValueAtTime(p.value,now);
 }
 function startVoice(s,count,delay,legato){
-  initAudio(); if(!ctx) return null;
+  initAudio(); if(!ctx) return null; markAudio();
   if(state.voice==='mine'&&typeof samplerVoice==='function'){ const sv=samplerVoice(s,count,delay,legato); if(sv) return sv; }
   const t0=ctx.currentTime+.004+(delay||0), f=mtof(s.midi);
   const vp=voice(), wv=waveFor(vp);

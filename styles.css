@@ -420,3 +420,6 @@ html.pocket-open, html.pocket-open body{overflow:hidden;height:100%;overscroll-b
 
 /* the readout keeps its height when an install card makes the header taller */
 .top .readout{align-self:flex-start}
+
+/* iOS zooms the page when a form field with text under 16px is tapped; keep them at 16px on touch screens */
+@media (pointer:coarse){ select,textarea,input:not([type="range"]):not([type="file"]){font-size:16px} }
