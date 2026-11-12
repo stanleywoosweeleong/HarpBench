@@ -32,7 +32,7 @@ Prefer the older letters-only layout (`Q`–`P` blow, `A`–`;` draw, `1`–`0` 
 
 Amazing Grace · Holy, Holy, Holy · Be Thou My Vision · Great Is Thy Faithfulness · What a Friend We Have in Jesus · Blessed Assurance · It Is Well with My Soul · Rock of Ages · Nearer, My God, to Thee · Joyful, Joyful, We Adore Thee · Doxology · Come, Thou Fount of Every Blessing · Jesus Loves Me · Crown Him with Many Crowns · When I Survey the Wondrous Cross · O for a Thousand Tongues to Sing · Abide with Me · Praise to the Lord, the Almighty · Silent Night · The Old Rugged Cross
 
-Each hymn is played in 1st position: its home note is the key of your harp, and the app picks the octave that needs the fewest bends. Each song is tagged Easy (no bends), Some bends, or Advanced.
+The songbook follows **Play in**. Choosing a hymn switches Play in to the easiest position for it on your harp (1st, 2nd, 3rd or 12th) and highlights its major scale. Pick another position with the buttons above the score, or with Play in, and the tab is rewritten for it. The app also picks the octave that needs the fewest bends. Each song is tagged Easy (no bends), Some bends, or Advanced, with the position that tag applies to.
 
 Melodies and first-verse lyrics are public domain and were transcribed from the [Open Hymnal Project](http://openhymnal.org) ABC files (melody line only). The data lives in `songs.js`.
 

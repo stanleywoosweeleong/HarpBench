@@ -292,6 +292,8 @@ html.pocket-open, html.pocket-open body{overflow:hidden;height:100%;overscroll-b
 .sb-info b{color:var(--ink);font-weight:600}
 .sb-ctl{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
 .sb-ctl .btn[aria-pressed="true"]{background:var(--brass);border-color:var(--brass);color:var(--bg)}
+.sb-pos button{display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.2}
+.sb-pos small{font-size:10px;letter-spacing:.06em;text-transform:uppercase;opacity:.7}
 .sb-next{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;min-height:34px}
 .sb-next .big{font-family:var(--f-mono);font-weight:600;font-size:26px;color:var(--brass)}
 .sb-next .then{font-family:var(--f-mono);font-size:14px;color:var(--muted)}

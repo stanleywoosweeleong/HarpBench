@@ -665,7 +665,7 @@ function renderPocketSheet(){
   }
   {const w=document.createElement('div'); w.className='ctl'; w.innerHTML='<label class="lbl" for="pkSongSel">Hymn</label>';
    const sel=document.createElement('select'); sel.id='pkSongSel'; SONGS.forEach(x=>sel.add(new Option(x.title,x.id))); sel.value=state.song;
-   sel.addEventListener('change',e=>{songStop(); state.song=e.target.value; song.pos=0; save(); renderSongbook();}); w.appendChild(sel); c.appendChild(w);
+   sel.addEventListener('change',e=>selectSong(e.target.value)); w.appendChild(sel); c.appendChild(w);
    const mk=(t,f)=>{const b=document.createElement('button'); b.className='btn'; b.textContent=t; b.addEventListener('click',f); c.appendChild(b);};
    mk('Listen',()=>{endAll(); $('pkSheet').hidden=true; if(song.mode!=='listen') songListen();});
    mk('Practice',()=>{endAll(); $('pkSheet').hidden=true; if(song.mode!=='practice') songPractice();});
@@ -820,32 +820,52 @@ renderMetroState();
 const JIANPU=['1','#1','2','b3','3','4','#4','5','#5','6','b7','7'];
 const song={cur:null,specs:[],pos:0,mode:'idle',timer:null,shift:0};
 function songById(id){return SONGS.find(s=>s.id===id)||SONGS[0];}
-function mapSong(s){
-  // Play in 1st position: the hymn's home note is the harp key. Pick the octave that needs the fewest bends.
-  const reeds=allReeds(); let best=null;
-  for(const o of [-12,0,12,24]){
+/* Positions offered for hymns: the song's home note sits this many semitones above the harp key. */
+const SONG_POS=[[0,'1st'],[7,'2nd'],[2,'3rd'],[5,'12th']];
+function mapSong(s,rootOff){
+  // The hymn's home note follows "Play in" (the position). Pick the octave that needs the fewest bends.
+  if(rootOff==null) rootOff=state.rootOff;
+  const reeds=allReeds(), tonic=L.base+rootOff; let best=null;
+  for(const o of [-24,-12,0,12,24]){
     let cost=0, specs=[];
     for(const n of s.notes){
       if(n[0]==null){specs.push(null); continue;}
-      const e=reeds.get(L.base+o+n[0]); if(!e){cost+=100; specs.push(null); continue;}
+      const e=reeds.get(tonic+o+n[0]); if(!e){cost+=100; specs.push(null); continue;}
       cost+=e.cost; specs.push(e.s);
     }
-    const mids=s.notes.filter(n=>n[0]!=null).map(n=>L.base+o+n[0]);
+    const mids=s.notes.filter(n=>n[0]!=null).map(n=>tonic+o+n[0]);
     cost+=Math.abs(mids.reduce((a,b)=>a+b,0)/mids.length-(L.base+15))*.04;
-    if(!best||cost<best.cost) best={cost,specs,o};
+    if(!best||cost<best.cost) best={cost,specs,o,tonic};
   }
   return best;
+}
+function songHardness(s,m){
+  const sp=m.specs.filter(Boolean), bends=sp.filter(x=>x.bend>0).length, alts=sp.filter(x=>x.alt).length,
+    miss=s.notes.filter((n,i)=>n[0]!=null&&!m.specs[i]).length;
+  const hard=L.chrom?miss*5:bends+alts+miss*5;
+  return {bends,alts,miss,hard,label:hard===0?'Easy':hard<=5?'Some bends':'Advanced',level:hard===0?'easy':hard<=5?'mid':'hard'};
+}
+function bestPosition(s){
+  let best=null;
+  for(const [off] of SONG_POS){const h=songHardness(s,mapSong(s,off)); if(!best||h.hard<best.h.hard) best={off,h};}
+  return best;
+}
+function selectSong(id){
+  songStop(); state.song=id; song.pos=0;
+  // Sync "Play in" to the easiest position for this hymn and highlight its major scale.
+  state.rootOff=bestPosition(songById(id)).off; state.scale='major';
+  save(); changed();
 }
 function jp(rel){const o=Math.floor(rel/12), p=((rel%12)+12)%12; return JIANPU[p]+(o>0?'̇'.repeat(o):o<0?'̣'.repeat(-o):'');}
 function noteLabel(n,spec){
   if(n[0]==null) return '–';
-  return state.notation==='numbers'?jp(n[0]+song.shift):nName(spec?spec.midi:L.base+n[0]);
+  return state.notation==='numbers'?jp(n[0]+song.shift):nName(spec?spec.midi:L.base+state.rootOff+n[0]);
 }
 function renderSongList(){
   const list=$('sbList'); if(list.children.length) {[...list.children].forEach(b=>b.setAttribute('aria-current',b.dataset.id===state.song)); return;}
   SONGS.forEach(s=>{const b=document.createElement('button'); b.className='sb-item'; b.dataset.id=s.id; b.setAttribute('role','listitem');
     b.innerHTML=`<b>${s.title}</b><span>${s.first}</span><em class="sb-diff"></em>`;
-    b.addEventListener('click',()=>{songStop(); state.song=s.id; song.pos=0; save(); renderSongbook(); if(pocketOpen()) renderPocketSheet();});
+    b.addEventListener('click',()=>selectSong(s.id));
     list.appendChild(b);});
   renderSongList();
 }
@@ -855,14 +875,19 @@ function renderSongbook(){
   const m=mapSong(s); song.specs=m.specs; song.shift=m.o;
   if(song.pos>=s.notes.length) song.pos=0;
   renderSongList();
-  [...$('sbList').children].forEach(b=>{const mm=b.dataset.id===s.id?m:mapSong(songById(b.dataset.id)), sp=mm.specs.filter(Boolean);
-    const hard=sp.filter(x=>x.bend>0||x.alt).length+songById(b.dataset.id).notes.filter((n,i)=>n[0]!=null&&!mm.specs[i]).length*5;
-    const e=b.querySelector('.sb-diff'); e.textContent=hard===0?'Easy':hard<=5?'Some bends':'Advanced'; e.dataset.level=hard===0?'easy':hard<=5?'mid':'hard';});
+  [...$('sbList').children].forEach(b=>{const bp=bestPosition(songById(b.dataset.id)), e=b.querySelector('.sb-diff');
+    e.textContent=bp.h.label+(L.chrom?'':' · '+SONG_POS.find(p=>p[0]===bp.off)[1]+' position'); e.dataset.level=bp.h.level;});
+  const pb=$('sbPos'); pb.innerHTML='';
+  SONG_POS.forEach(([off,ord])=>{const h=songHardness(s,mapSong(s,off)), b=document.createElement('button');
+    b.innerHTML=`${L.chrom?'Key of '+nName(L.base+off):ord+' · '+nName(L.base+off)}<small>${h.label}</small>`;
+    b.setAttribute('aria-pressed',off===state.rootOff);
+    b.addEventListener('click',()=>{songStop(); state.rootOff=off; save(); changed();}); pb.appendChild(b);});
   $('sbTitle').textContent=s.title;
   $('sbCredits').textContent=`Words: ${s.words} · Music: ${s.music}`;
   const used=m.specs.filter(Boolean), bends=used.filter(x=>x.bend>0).length, alts=used.filter(x=>x.alt).length, miss=s.notes.filter((n,i)=>n[0]!=null&&!m.specs[i]).length;
   const holes=used.map(x=>x.hi+1);
-  $('sbInfo').innerHTML=`Key of <b>${nName(L.base)}</b> on your ${KEY_LABEL[state.key]} ${L.chrom?'chromatic':'diatonic'} (1st position) · ${s.meter} time · holes <b>${Math.min(...holes)}–${Math.max(...holes)}</b>`
+  const pn=posNumber();
+  $('sbInfo').innerHTML=`Key of <b>${nName(m.tonic)}</b> on your ${KEY_LABEL[state.key]} ${L.chrom?'chromatic':'diatonic'}${L.chrom?'':' ('+ORD[pn-1]+' position'+(POS_NICK[pn]?', '+POS_NICK[pn]:'')+')'} · ${s.meter} time · holes <b>${Math.min(...holes)}–${Math.max(...holes)}</b>`
     +(bends?` · <b>${bends}</b> bent note${bends>1?'s':''}`:' · no bends')+(alts?` · <b>${alts}</b> ${L.chrom?'slide':'overblown'} note${alts>1?'s':''}`:'')
     +(miss?` · <b>${miss}</b> note${miss>1?'s':''} not on this harp (turn on overblows)`:'');
   [...$('sbSpeed').children].forEach(b=>b.setAttribute('aria-pressed',+b.dataset.r===state.songRate));
