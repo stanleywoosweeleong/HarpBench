@@ -3,12 +3,14 @@
 "use strict";
 const ABC_PC={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
 const ABC_ACC={'^':1,'^^':2,'_':-1,'__':-2,'=':0};
-const ABC_MODES={'':0,maj:0,major:0,ion:0,m:-3,min:-3,minor:-3,aeo:-3,mix:-1,dor:-2,phr:-4,lyd:1,loc:-5};
+// semitones from the relative major's tonic up to the mode's tonic (D Dorian: 2 above C)
+const ABC_MODES={'':0,maj:0,major:0,ion:0,m:9,min:9,minor:9,aeo:9,dor:2,phr:4,lyd:5,mix:7,loc:11};
 const ABC_MAJ=[['C',0],['G',1],['D',2],['A',3],['E',4],['B',5],['F#',6],['C#',7],['F',-1],['Bb',-2],['Eb',-3],['Ab',-4],['Db',-5],['Gb',-6],['Cb',-7]];
 
 function abcKeySig(k){
-  k=(k||'').trim().split(/\s+/)[0]||'C';
-  const m=/^([A-G])([#b]?)(.*)$/.exec(k);
+  // the mode may follow the root directly (Am, Dmix) or after a space (A minor, D Dorian); later words are clefs etc.
+  k=(k||'').trim()||'C';
+  const m=/^([A-G])([#b]?)\s*([A-Za-z]*)/.exec(k);
   if(!m) return {sig:{},rootpc:0};
   const rest=m[3].toLowerCase();
   const mode=['m','min','minor'].includes(rest)?'m':rest.slice(0,3);
@@ -39,7 +41,8 @@ function abcLyrics(w){
   return out;
 }
 function abcVoices(abc){
-  const out=[]; const re=/^\[V:\s*([^\]\s]+)/gm; let m;
+  // voices in order of first appearance, whether declared on V: lines or inline as [V:...]
+  const out=[]; const re=/^(?:\[V:|V:)\s*([^\]\s]+)/gm; let m;
   while((m=re.exec(abc))) if(!out.includes(m[1])) out.push(m[1]);
   return out;
 }

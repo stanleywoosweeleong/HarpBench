@@ -14,16 +14,16 @@ function backingVoice(midi,at,len){
   g.gain.setValueAtTime(0,at); g.gain.linearRampToValueAtTime(v,at+.05);
   g.gain.setValueAtTime(v,Math.max(at+.05,end-.07)); g.gain.linearRampToValueAtTime(0,end);
   o1.start(at); o2.start(at); o1.stop(end+.05); o2.stop(end+.05);
-  return {stop(){const n=ctx.currentTime; try{g.gain.cancelScheduledValues(n); g.gain.setTargetAtTime(0,n,.03); o1.stop(n+.2); o2.stop(n+.2);}catch(e){}}};
+  return {end:end+.1,stop(){const n=ctx.currentTime; try{g.gain.cancelScheduledValues(n); g.gain.setTargetAtTime(0,n,.03); o1.stop(n+.2); o2.stop(n+.2);}catch(e){}}};
 }
 
 function tpUi(at,fn){ tp.ui.push(setTimeout(fn,Math.max(0,(at-ctx.currentTime)*1000))); }
-function tpAudioAt(t){ return tp.anchor+(t-tp.a+tp.iter*(tp.b-tp.a))*tp.spb; }
+function tpAudioAt(t){ return tp.anchor+(t-tp.a+tp.iter*tp.span)*tp.spb; }
 function tpTonic(){ return song.tonic+song.shift; }
 
 function tpBuildEvents(s,g){
   const ev=[];
-  if(state.songClick) beatsBetween(g,tp.a,tp.b).forEach(bt=>ev.push({t:bt.t,k:'click',bt}));
+  if(state.songClick) beatsBetween(g,tp.a,tp.a+tp.span).forEach(bt=>ev.push({t:bt.t,k:'click',bt}));
   for(let i=tp.i0;i<=tp.i1;i++) ev.push({t:g.starts[i],k:'mel',i,d:s.notes[i][1]});
   if(state.backing) s.parts.forEach(p=>{let t=0;
     for(const [rel,d] of p){ if(rel!=null&&t+d>tp.a+1e-9&&t<tp.b-1e-9){const st=Math.max(t,tp.a); ev.push({t:st,k:'part',rel,d:Math.min(t+d,tp.b)-st});} t+=d; }});
@@ -38,16 +38,17 @@ function tpStart(mode){
   tp.grid=g; tp.spb=60/(s.bpm*state.songRate); tp.mode=mode;
   // start at the line holding the selected note; with Loop on, repeat that line
   const lines=lineRanges(s), line=lines.find(([x,y])=>song.pos>=x&&song.pos<=y)||lines[0];
-  if(state.loopLine||song.pos>0){ tp.i0=line[0]; } else tp.i0=0;
+  tp.i0=state.loopLine||song.picked?line[0]:0;
   tp.i1=state.loopLine?line[1]:s.notes.length-1;
   tp.a=g.starts[tp.i0]; tp.b=tp.i1+1<s.notes.length?g.starts[tp.i1+1]:g.total; tp.loop=!!state.loopLine;
+  tp.span=tp.loop?Math.ceil((tp.b-tp.a)/g.barLen-1e-6)*g.barLen:tp.b-tp.a;
   if(metro.on) metroToggle(false);                    // the song's own click replaces the free metronome
   state.bpm=Math.round(s.bpm*state.songRate/g.beat); state.beats=[2,3,4,6].includes(g.perBar)?g.perBar:4; state.feel='straight';
   save(); renderMetroState();
   const cs=state.countIn?countInStart(g,tp.a):tp.a;
   tp.anchor=ctx.currentTime+.15+(tp.a-cs)*tp.spb;
   tp.iter=0; tp.idx=0; tp.pending=[]; tp.onsets=[]; tp.grades={};
-  if(state.countIn) beatsBetween(g,cs,tp.a).forEach(bt=>{const at=tp.anchor+(bt.t-tp.a)*tp.spb; clickAt(at,bt.down&&g.perBar>1?'accent':'beat'); tpUi(at,()=>litBeat(bt.beatInBar));});
+  if(state.countIn) beatsBetween(g,cs,tp.a).forEach(bt=>{const at=tp.anchor+(bt.t-tp.a)*tp.spb; tp.voices.push(clickAt(at,bt.down&&g.perBar>1?'accent':'beat')); tpUi(at,()=>litBeat(bt.beatInBar));});
   tp.events=tpBuildEvents(s,g);
   song.mode=mode; song.pos=tp.i0; tp.on=true;
   document.querySelectorAll('#sbScore .nc').forEach(c=>c.classList.remove('g-good','g-early','g-late','g-miss'));
@@ -57,13 +58,13 @@ function tpStart(mode){
 
 function tpSchedule(ev,at){
   const s=song.cur;
-  if(ev.k==='click'){ clickAt(at,ev.bt.down&&tp.grid.perBar>1?'accent':'beat'); tpUi(at,()=>litBeat(ev.bt.beatInBar)); return; }
+  if(ev.k==='click'){ tp.voices.push(clickAt(at,ev.bt.down&&tp.grid.perBar>1?'accent':'beat')); tpUi(at,()=>litBeat(ev.bt.beatInBar)); return; }
   if(ev.k==='part'){ tp.voices.push(backingVoice(tpTonic()+ev.rel,at,ev.d*tp.spb*.97)); return; }
   // melody note
   const sp=song.specs[ev.i], len=ev.d*tp.spb;
   if(sp&&(tp.mode==='listen'||state.guide)){
     const v=startVoice(sp,tp.mode==='listen'?1:5,at-ctx.currentTime,false);
-    if(v){ v.stop(at+len*.92); tp.voices.push(v); }
+    if(v){ v.stop(at+len*.92); tp.voices.push({end:at+len+.5,stop(){v.stop();}}); }
   }
   if(sp&&tp.mode==='along') tp.pending.push({i:ev.i,at,midi:Math.round(sp.midi),end:at+Math.min(.4,Math.max(.18,len*.6))});
   tpUi(at,()=>{
@@ -84,13 +85,17 @@ function tpTick(){
     tpSchedule(ev,at); tp.idx++;
   }
   tpGrade();
-  if(!tp.loop&&tp.idx>=tp.events.length&&ctx.currentTime>tpAudioAt(tp.b)+.35) tpFinish();
+  const now=ctx.currentTime; if(tp.voices.length>64) tp.voices=tp.voices.filter(v=>!(v.end<now));   // finished notes
+  tp.ui=tp.ui.slice(-400);
+  if(!tp.loop&&tp.idx>=tp.events.length&&now>tpAudioAt(tp.b)+.35) tpFinish();
 }
 
 /* ---------- play-along grading ---------- */
-function tpNoteOn(midi){
-  // Called when the player starts a note (screen, keyboard or microphone)
-  if(tp.on&&tp.mode==='along') tp.onsets.push({m:Math.round(midi),t:ctx.currentTime});
+function tpNoteOn(midi,fromMic){
+  // Called when the player starts a note (screen, keyboard or microphone). The player answers what they hear,
+  // which reaches them after the output delay; the microphone also hears a note a frame or two late.
+  const outDelay=(ctx.outputLatency||0)+(ctx.baseLatency||0), micDelay=fromMic?.05:0;
+  if(tp.on&&tp.mode==='along') tp.onsets.push({m:Math.round(midi),t:ctx.currentTime-outDelay-micDelay});
 }
 function tpGrade(){
   if(tp.mode!=='along') return;
@@ -98,7 +103,8 @@ function tpGrade(){
   tp.pending=tp.pending.filter(p=>{
     if(now<p.end) return true;
     let best=null;
-    for(const o of tp.onsets) if(o.m===p.midi&&o.t>=p.at-.22&&o.t<=p.end&&(!best||Math.abs(o.t-p.at)<Math.abs(best.t-p.at))) best=o;
+    for(const o of tp.onsets) if(!o.used&&o.m===p.midi&&o.t>=p.at-.22&&o.t<=p.end&&(!best||Math.abs(o.t-p.at)<Math.abs(best.t-p.at))) best=o;
+    if(best) best.used=true;
     const g=!best?'miss':Math.abs(best.t-p.at)<=.12?'good':best.t<p.at?'early':'late';
     tp.grades[p.i]=g;
     const c=document.querySelector(`#sbScore .nc[data-i="${p.i}"]`);
@@ -124,7 +130,8 @@ function tpFinish(){
     pr.plays++; pr.last=tally.score; pr.best=Math.max(pr.best,tally.score); pr.date=new Date().toISOString().slice(0,10);
     state.progress[song.cur.id]=pr; save();
     song.result=tally; song.mode='result';
-  } else { song.mode='idle'; song.pos=0; }
+  } else song.mode='idle';
+  song.pos=0; song.picked=false;
   updateSongButtons(); songMark(false); renderSongList();
 }
 

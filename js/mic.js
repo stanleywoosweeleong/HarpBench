@@ -39,6 +39,7 @@ async function micStart(){
   micButtons();
 }
 function micStop(){
+  if(typeof mh!=='undefined'&&mh.rec) mhStop('Recording stopped because the microphone was turned off.');
   clearInterval(mic.timer); mic.on=false;
   if(mic.stream) mic.stream.getTracks().forEach(t=>t.stop());
   try{ mic.src&&mic.src.disconnect(); }catch(e){}

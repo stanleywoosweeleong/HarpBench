@@ -17,7 +17,10 @@ function mhStore(mode,fn){ return mhDb().then(db=>new Promise((res,rej)=>{const 
   tx.oncomplete=()=>res(q&&q.result); tx.onerror=()=>rej(tx.error);})); }
 function mhKey(type,midi){ return type+':'+midi; }
 function mhLoad(){
-  return mhStore('readonly',st=>st.getAll()).then(list=>{ (list||[]).forEach(s=>mh.samples.set(mhKey(s.type,s.midi),s)); mhRender(); }).catch(()=>{});
+  return mhStore('readonly',st=>st.getAll()).then(list=>{ (list||[]).forEach(s=>{
+    // repair recordings saved before the capture fix: a non-number sample would silence all sound
+    if(s.data&&s.data.some(x=>!Number.isFinite(x))){ s.data=s.data.map(x=>Number.isFinite(x)?x:0); mhStore('readwrite',st=>st.put(s,mhKey(s.type,s.midi))).catch(()=>{}); }
+    mh.samples.set(mhKey(s.type,s.midi),s); }); mhRender(); }).catch(()=>{});
 }
 
 /* ---------- playback ---------- */
@@ -90,7 +93,7 @@ function mhPrompt(extra){
 function mhTick(){
   const rec=mh.rec; if(!rec) return; const t=rec.targets[rec.idx], sr=rec.sr;
   const hearing=mic.cur===t.midi&&mic.stable>=2;
-  if(!rec.cap){ if(hearing){ rec.cap={start:rec.total-Math.round(.08*sr)}; mhPrompt('Recording… keep holding.'); } return; }
+  if(!rec.cap){ if(hearing){ rec.cap={start:Math.max(0,rec.total-Math.round(.08*sr))}; mhPrompt('Recording… keep holding.'); } return; }
   const got=rec.total-rec.cap.start;
   if(!hearing){
     if(got<1.1*sr){ rec.cap=null; mhPrompt('A little longer, please: hold the note for about two seconds.'); return; }
@@ -99,7 +102,7 @@ function mhTick(){
 }
 function mhSave(t,len){
   const rec=mh.rec, sr=rec.sr, n=rec.ring.length, data=new Float32Array(len);
-  for(let i=0;i<len;i++) data[i]=rec.ring[(rec.cap.start+i)%n];
+  for(let i=0;i<len;i++){ const x=rec.ring[(rec.cap.start+i)%n]; data[i]=Number.isFinite(x)?x:0; }
   // level the note (by the loudness of its steady middle) and soften the edges
   let s=0; const a=Math.floor(len*.3), b=Math.floor(len*.8); for(let i=a;i<b;i++) s+=data[i]*data[i];
   const g=.2/Math.max(1e-4,Math.sqrt(s/(b-a))); for(let i=0;i<len;i++) data[i]=Math.max(-1,Math.min(1,data[i]*g));

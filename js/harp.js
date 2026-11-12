@@ -81,7 +81,7 @@ function render(){
   $('legend').querySelectorAll(':scope > span:nth-child(-n+3)').forEach(e=>e.hidden=!scale);
   $('obBtn').hidden=L.chrom; $('snapBtn').hidden=L.chrom;
   $('modShift').innerHTML=L.chrom?'<kbd>Shift</kbd> push the slide in':'<kbd>Shift</kbd> overblow / overdraw (when on)';
-  renderControls(); renderPads(); renderKeymap(); renderPocket(); renderSongbook(); refreshLights();
+  renderControls(); renderPads(); renderKeymap(); renderSongbook(); renderPocket(); songMark(false); refreshLights();
 }
 function posNumber(){for(let n=1;n<=12;n++) if((7*(n-1))%12===state.rootOff) return n; return 1;}
 function renderControls(){
@@ -197,7 +197,8 @@ function holeForCode(code){
   return null;
 }
 window.addEventListener('keydown',e=>{
-  const tg=e.target; if(tg&&(tg.tagName==='SELECT'||(tg.tagName==='INPUT'&&(tg.type!=='range'||/^Arrow/.test(e.code))))) return;
+  const tg=e.target;
+  if(tg&&(tg.tagName==='SELECT'||tg.tagName==='TEXTAREA'||tg.isContentEditable||(tg.tagName==='INPUT'&&(tg.type!=='range'||/^Arrow/.test(e.code))))) return;
   if(e.metaKey||e.ctrlKey||e.altKey) return;
   const code=e.code;
   if(code==='ShiftLeft'||code==='ShiftRight'){ if(!shiftHeld){shiftHeld=true; updateSlideBtn(); refreshAll();} return; }
@@ -224,7 +225,9 @@ window.addEventListener('keyup',e=>{
   const padIdx=KL().chords.indexOf(code); if(padIdx>=0){const pad=document.querySelector(`.pad[data-idx="${padIdx}"]`); if(pad) padUp(pad);}
 });
 window.addEventListener('blur',endAll);
-document.addEventListener('visibilitychange',()=>{if(document.hidden) endAll();});
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) return; endAll();
+  // browsers slow timers in hidden pages, which would make songs stutter; the free metronome keeps a longer lookahead instead
+  if(typeof tp!=='undefined'&&tp.on) songStop(); });
 
 /* ---------- reeds / chords ---------- */
 let padData=[];

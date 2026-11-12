@@ -32,6 +32,8 @@ try{const s=JSON.parse(localStorage.getItem('harpbench')||'null'); if(s) Object.
 function save(){try{localStorage.setItem('harpbench',JSON.stringify(state))}catch(e){}}
 
 const names=()=>[7,2,9,4,11,6].includes(state.key)?SHARP:[5,10,3,8,1].includes(state.key)?FLAT:MIX;
+// escape text from imported songs before it goes into innerHTML
+const esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pc=m=>((Math.round(m)%12)+12)%12;
 const nName=m=>names()[pc(m)];
 const nOct=m=>Math.floor(Math.round(m)/12)-1;
@@ -153,7 +155,14 @@ function levelFor(s,count){
   if(s.midi<57) g*=.85;
   return g;
 }
-function hold(p,now){ if(p.cancelAndHoldAtTime) p.cancelAndHoldAtTime(now); else {const v=p.value; p.cancelScheduledValues(now); p.setValueAtTime(v,now);} }
+function hold(p,now){
+  // Freeze an automated value at time `now` before a release. Without cancelAndHoldAtTime (Firefox), only pin the
+  // current value for an immediate release: for a release scheduled later, p.value is not yet the value at `now`,
+  // and the following setTargetAtTime continues smoothly from the curve anyway.
+  if(p.cancelAndHoldAtTime){ p.cancelAndHoldAtTime(now); return; }
+  p.cancelScheduledValues(now);
+  if(now<=ctx.currentTime+.005) p.setValueAtTime(p.value,now);
+}
 function startVoice(s,count,delay,legato){
   initAudio(); if(!ctx) return null;
   if(state.voice==='mine'&&typeof samplerVoice==='function'){ const sv=samplerVoice(s,count,delay,legato); if(sv) return sv; }

@@ -11,10 +11,12 @@ function clickAt(t,kind){
   const v=state.click*(kind==='accent'?.9:kind==='beat'?.6:.32);
   g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v,t+.001); g.gain.exponentialRampToValueAtTime(.0005,t+(kind==='sub'?.03:.05));
   o.connect(f).connect(g).connect(ctx.destination); o.start(t); o.stop(t+.08);
+  // disconnecting silences a click that has not sounded yet (used when a song stops during its count-in)
+  return {end:t+.1,stop(){try{g.disconnect()}catch(e){}}};
 }
 function metroTick(){
   if(!ctx) return; const spb=60/state.bpm;
-  while(metro.next<ctx.currentTime+.12){
+  while(metro.next<ctx.currentTime+(document.hidden?1.5:.12)){
     const t=metro.next, b=metro.beat;
     clickAt(t,b===0&&state.beats>1?'accent':'beat');
     if(state.feel==='eighths') clickAt(t+spb/2,'sub');

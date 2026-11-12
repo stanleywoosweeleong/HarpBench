@@ -1,6 +1,6 @@
 {
   "name": "harp-bench",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "private": true,
   "description": "A playable harmonica PWA with a hymn songbook.",
   "scripts": {

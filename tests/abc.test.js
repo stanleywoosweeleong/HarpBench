@@ -42,3 +42,31 @@ test('text that is not ABC gives a clear error', () => {
   t2.abc = 'Amazing grace, how sweet the sound';
   assert.throws(() => t2.get('abcToSong(abc)'), /No tune found/);
 });
+
+test('keys written with a space keep their mode (A minor, D Dorian)', () => {
+  const t2 = load(['js/abc.js']);
+  // E minor has F#; D Dorian has no sharps or flats; a plain "K:D" has F# and C#
+  assert.equal(t2.get(`abcParse('X:1\\nM:4/4\\nL:1/4\\nK:E minor\\nE F G A|]').notes[1].midi`), 66);
+  assert.equal(t2.get(`abcParse('X:1\\nM:4/4\\nL:1/4\\nK:D Dorian\\nD E F G|]').notes[2].midi`), 65);
+  assert.equal(t2.get(`abcParse('X:1\\nM:4/4\\nL:1/4\\nK:D\\nD E F G|]').notes[2].midi`), 66);
+  assert.equal(t2.get(`abcParse('X:1\\nM:4/4\\nL:1/4\\nK:G clef=treble\\nG F E D|]').notes[1].midi`), 66);
+});
+
+test('harmony from voices declared on V: lines', () => {
+  const t2 = load(['js/abc.js']);
+  t2.abc = 'X:1\nT:Two voices\nM:4/4\nL:1/4\nK:C\nV:1\nc d e f | g4 |]\nw: la la la la la\nV:2\nE F G A | B4 |]\n';
+  const s = t2.get('abcToSong(abc,"v")');
+  assert.equal(s.parts.length, 1);
+  assert.equal(s.notes.length, 5);
+  assert.equal(s.verses[0][0], 'la');
+});
+
+test('church modes get the key signature of their relative major', () => {
+  const t2 = load(['js/abc.js']);
+  // G Mixolydian = C major (F natural); E Phrygian = C major; F Lydian = C major (B natural); B Locrian = C major
+  assert.equal(t2.get(`abcParse('X:1\\nL:1/4\\nK:Gmix\\nG F|]').notes[1].midi`), 65);
+  assert.equal(t2.get(`abcParse('X:1\\nL:1/4\\nK:Ephr\\nE F|]').notes[1].midi`), 65);
+  assert.equal(t2.get(`abcParse('X:1\\nL:1/4\\nK:Flyd\\nF B|]').notes[1].midi`), 71);
+  assert.equal(t2.get(`abcParse('X:1\\nL:1/4\\nK:Bloc\\nB F|]').notes[1].midi`), 65);
+  assert.equal(t2.get(`abcParse('X:1\\nL:1/4\\nK:Bb\\nB E|]').notes[0].midi`), 70);
+});

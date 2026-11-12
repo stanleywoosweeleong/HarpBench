@@ -414,3 +414,9 @@ html.pocket-open, html.pocket-open body{overflow:hidden;height:100%;overscroll-b
 .install-tip .btn{align-self:flex-start}
 .share-ico{width:14px;height:17px;vertical-align:-3px;color:var(--blue)}
 .install-tip .tip-note{color:var(--muted)}
+
+/* buttons and pads inside the phone settings sheet must not block scrolling */
+.pk-sheet .btn,.pk-sheet .pad,.pk-sheet .seg button{touch-action:pan-y}
+
+/* the readout keeps its height when an install card makes the header taller */
+.top .readout{align-self:flex-start}

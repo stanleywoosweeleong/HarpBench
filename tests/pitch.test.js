@@ -12,14 +12,16 @@ function tone(freq, { n = 2048, noise = 0.03, amp = 0.3 } = {}) {
   const buf = new Float32Array(n);
   for (let i = 0; i < n; i++) {
     let x = 0;
-    for (let h = 1; h <= 12; h++) x += Math.pow(h, -0.9) * Math.sin(2 * Math.PI * freq * h * i / SR + h);
+    // harmonics up to the Nyquist limit only, as a microphone delivers
+    for (let h = 1; h <= 12 && freq * h < SR / 2; h++) x += Math.pow(h, -0.9) * Math.sin(2 * Math.PI * freq * h * i / SR + h);
     buf[i] = amp * x / 3 + noise * rnd();
   }
   return buf;
 }
 const cents = (a, b) => 1200 * Math.log2(a / b);
 
-for (const [name, f] of [['G3 (low G harp, hole 1)', 196], ['C4', 261.63], ['A4 (3-draw bend)', 440], ['C6', 1046.5], ['A6 (10 draw)', 1760], ['C7 (10 blow)', 2093]]) {
+for (const [name, f] of [['G3 (low G harp, hole 1)', 196], ['C4', 261.63], ['A4 (3-draw bend)', 440], ['C6', 1046.5], ['A6 (10 draw)', 1760], ['C7 (10 blow)', 2093],
+  ['E7 (E harp, 10 blow)', 2637], ['F#7 (F# harp, 10 blow)', 2960], ['G7 (F# harp, 10 overdraw)', 3136]]) {
   test(`finds ${name} within 5 cents`, () => {
     const r = t.detectPitch(tone(f), SR);
     assert.ok(r.freq > 0, 'no pitch found');

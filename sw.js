@@ -1,6 +1,6 @@
 /* Harp Bench service worker: caches the whole app so it plays offline.
    Bump VERSION whenever any file changes so installed copies update. */
-const VERSION = 'harpbench-v1.11.2';
+const VERSION = 'harpbench-v1.12.0';
 const ASSETS = [
   './',
   'index.html',
@@ -34,7 +34,8 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(VERSION).then(cache => cache.addAll(ASSETS)));
+  // cache: 'reload' skips the browser's HTTP cache, so an update never stores an older copy of a file
+  event.waitUntil(caches.open(VERSION).then(cache => cache.addAll(ASSETS.map(u => new Request(u, { cache: 'reload' })))));
 });
 
 self.addEventListener('activate', event => {

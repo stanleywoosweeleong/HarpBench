@@ -2,12 +2,14 @@ import re
 from fractions import Fraction as F
 NOTE_PC={'C':0,'D':2,'E':4,'F':5,'G':7,'A':9,'B':11}
 SHARPS='FCGDAEB'
-MODES={'':0,'maj':0,'major':0,'ion':0,'m':-3,'min':-3,'minor':-3,'aeo':-3,'mix':-1,'dor':-2,'phr':-4,'lyd':1,'loc':-5}
+# semitones from the relative major's tonic up to the mode's tonic (D Dorian: 2 above C)
+MODES={'':0,'maj':0,'major':0,'ion':0,'m':9,'min':9,'minor':9,'aeo':9,'dor':2,'phr':4,'lyd':5,'mix':7,'loc':11}
 MAJ_SHARPS={'C':0,'G':1,'D':2,'A':3,'E':4,'B':5,'F#':6,'C#':7,'F':-1,'Bb':-2,'Eb':-3,'Ab':-4,'Db':-5,'Gb':-6,'Cb':-7}
 FIFTHS=['Cb','Gb','Db','Ab','Eb','Bb','F','C','G','D','A','E','B','F#','C#']
 def keysig(k):
-    k=k.strip().split()[0] if k.strip() else 'C'
-    m=re.match(r'([A-G])([#b]?)(.*)',k)
+    # the mode may follow the root directly (Am, Dmix) or after a space (A minor, D Dorian); later words are clefs etc.
+    k=k.strip() or 'C'
+    m=re.match(r'([A-G])([#b]?)\s*([A-Za-z]*)',k)
     if not m: return {},0,'maj'
     root=m.group(1)+m.group(2); mode=m.group(3).lower()[:3] if m.group(3) else ''
     if mode=='m' or m.group(3).lower() in('m','min','minor'): mode='m'
@@ -24,7 +26,7 @@ def keysig(k):
         for l in SHARPS[:n]: sig[l]=1
     elif n<0:
         for l in SHARPS[::-1][:(-n)]: sig[l]=-1
-    return sig,rootpc,('min' if off==-3 else 'maj' if off==0 else mode)
+    return sig,rootpc,('min' if off==9 else 'maj' if off==0 else mode)
 def parse(abc, voice=None):
     """Parse one voice of an ABC tune (the first voice by default).
     Returns notes with midi, length in quarter notes, verse syllables and bar/line flags."""
@@ -185,6 +187,6 @@ def jianpu(rel):
 def voices(abc):
     """Voice ids in the order they first appear in the tune body."""
     out=[]
-    for m in re.finditer(r'^\[V:\s*([^\]\s]+)',abc,re.M):
+    for m in re.finditer(r'^(?:\[V:|V:)\s*([^\]\s]+)',abc,re.M):
         if m.group(1) not in out: out.append(m.group(1))
     return out

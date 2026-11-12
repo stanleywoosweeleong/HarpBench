@@ -67,7 +67,7 @@
     const steps = edge
       ? ['Click <b>…</b> (Settings and more) at the top right.', 'Choose <b>Apps</b>, then <b>Install this site as an app</b>.', 'Click <b>Install</b>.']
       : chrome
-        ? ['Click <b>⋮</b> at the top right.', 'Choose <b>Cast, save, and share</b>, then <b>Install page as app…</b> (it may say <b>Install Harp Bench…</b>).', 'Click <b>Install</b>. If Chrome offers <b>Open in app</b> instead, it is already installed.']
+        ? ['Look for the install icon at the right end of the address bar, or click <b>⋮</b> and open <b>Cast, save, and share</b>.', 'Choose <b>Install Harp Bench…</b> (or <b>Install page as app…</b>), then <b>Install</b>.', 'If neither appears, Chrome is not offering an install for this page on this computer; the page still works offline in this tab.']
         : ['Installing works in Chrome and Edge, from the browser menu.', 'In this browser, bookmark the page; it still works offline once loaded.'];
     $('deskSteps').innerHTML = steps.map(s => '<li>' + s + '</li>').join('');
     $('deskHint').hidden = false;
