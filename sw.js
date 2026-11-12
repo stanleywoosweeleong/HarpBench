@@ -1,12 +1,18 @@
 /* Harp Bench service worker: caches the whole app so it plays offline.
    Bump VERSION whenever any file changes so installed copies update. */
-const VERSION = 'harpbench-v1.5.0';
+const VERSION = 'harpbench-v1.6.0';
 const ASSETS = [
   './',
   'index.html',
   'styles.css',
   'songs.js',
-  'app.js',
+  'js/core.js',
+  'js/theory.js',
+  'js/harp.js',
+  'js/pocket.js',
+  'js/metronome.js',
+  'js/songbook.js',
+  'js/main.js',
   'pwa.js',
   'manifest.webmanifest',
   'fonts/fonts.css',

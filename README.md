@@ -65,10 +65,17 @@ Then open <http://localhost:8000>. Service workers need `http://localhost` or HT
 ## Files
 
 - `index.html`: page markup
-- `songs.js`: the hymn library (melody, rhythm and verse 1 for each song)
 - `styles.css`: styles, with light and dark themes
-- `app.js`: the instrument: tuning layouts, sound engine (Web Audio), touch and keyboard input, chords, metronome, phone mode
-- `pwa.js`: service worker registration, install button, update prompt
-- `sw.js`: offline cache
-- `manifest.webmanifest`, `icons/`: app install metadata and icons
+- `songs.js`: the hymn library
+- `js/core.js`: music data, harp layouts and the sound engine (Web Audio)
+- `js/theory.js`: logic with no page access (reeds, chord voicings, hymn tabbing), covered by the tests
+- `js/harp.js`: the on-screen harmonica, keyboard, chords and controls
+- `js/pocket.js`: phone mode
+- `js/metronome.js`, `js/songbook.js`: metronome and songbook
+- `js/main.js`: start-up
+- `pwa.js`, `sw.js`, `manifest.webmanifest`, `icons/`: install and offline support
 - `fonts/`: self-hosted Big Shoulders Display, IBM Plex Sans and IBM Plex Mono (SIL Open Font License 1.1)
+- `tests/`: Node tests (`npm test`)
+- `tools/build_artifact.py`: builds a single self-contained HTML file from the repo (`npm run build:artifact`)
+
+The scripts are classic (non-module) scripts that share one global scope, loaded in the order listed in `index.html`, so the app runs without a build step.
