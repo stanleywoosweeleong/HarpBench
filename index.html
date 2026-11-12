@@ -134,7 +134,14 @@
   </section>
 
   <section class="songbook" aria-label="Songbook" id="songbook">
-    <div class="section-head"><h2>Hymn songbook</h2><p>20 public-domain hymns, tabbed for whatever harp you have selected above. Listen first, then practise note by note.</p></div>
+    <div class="section-head"><h2>Hymn songbook</h2><p>20 public-domain hymns, tabbed for whatever harp you have selected above. Listen first, then practise note by note.</p>
+      <button class="btn" id="sbAddBtn" aria-expanded="false" aria-controls="sbAdd">Add your own song</button></div>
+    <div class="sb-add" id="sbAdd" hidden>
+      <p>Paste a tune in <a href="https://abcnotation.com/learn" target="_blank" rel="noopener">ABC notation</a> or open an .abc file. Many hymns and folk tunes are shared this way, for example on abcnotation.com or openhymnal.org. Lyrics on <code>w:</code> lines and extra voices for harmony are picked up too.</p>
+      <textarea id="sbAbc" rows="8" spellcheck="false" placeholder="X:1&#10;T:My tune&#10;M:3/4&#10;L:1/4&#10;K:C&#10;G | c2 e/c/ | e2 d | c2 A | G2 |]&#10;w: A- maz- ing grace how sweet the sound"></textarea>
+      <div class="sb-ctl"><label class="btn" for="sbAbcFile">Open .abc file</label><input type="file" id="sbAbcFile" accept=".abc,.txt,text/plain" hidden>
+        <button class="btn" id="sbAbcAdd">Add to songbook</button><span class="sb-add-msg" id="sbAbcMsg" role="status"></span></div>
+    </div>
     <div class="sb-grid">
       <div class="sb-list" id="sbList" role="list"></div>
       <div class="sb-view">
@@ -247,6 +254,7 @@
 <script src="js/core.js"></script>
 <script src="js/pitch.js"></script>
 <script src="js/theory.js"></script>
+<script src="js/abc.js"></script>
 <script src="js/harp.js"></script>
 <script src="js/pocket.js"></script>
 <script src="js/metronome.js"></script>

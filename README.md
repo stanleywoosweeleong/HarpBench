@@ -48,6 +48,10 @@ Listen and Play along run on the audio clock, so the melody, the metronome, the 
 
 Press **Use microphone** and play your real harmonica. The tuner shows the note, how many cents sharp or flat it is (handy for checking bends), and which hole it is on the selected harp. While the microphone is on, **Practice** and **Play along** listen to your harmonica instead of waiting for taps. Use headphones when Listen or the harmony is playing, or the microphone hears the app. The microphone works in the installed app and on the GitHub Pages address; some embedded views do not allow it.
 
+### Your own songs
+
+**Add your own song** takes a tune in [ABC notation](https://abcnotation.com/learn), pasted or opened from a `.abc` file. Lyrics on `w:` lines become the verses and any extra voices become the backing harmony. Imported songs are tabbed like the hymns and saved in your browser; **Remove from songbook** deletes one. The importer (`js/abc.js`) is a port of `tools/abcparse.py`, and the tests check that both produce identical songs.
+
 ## Install and play offline
 
 The app is plain static files with a service worker, so any static host works. With GitHub Pages:
@@ -84,7 +88,11 @@ Then open <http://localhost:8000>. Service workers need `http://localhost` or HT
 - `js/harp.js`: the on-screen harmonica, keyboard, chords and controls
 - `js/pocket.js`: phone mode
 - `js/metronome.js`, `js/songbook.js`: metronome and songbook
+- `js/abc.js`: ABC notation importer
+- `js/pitch.js`, `js/mic.js`: microphone pitch detection and tuner
+- `js/transport.js`: Listen and Play along on the audio clock (metronome, count-in, harmony, grading)
 - `js/main.js`: start-up
+- `tools/build_songs.py`, `tools/abcparse.py`, `tools/openhymnal/`: rebuild `songs.js` from the Open Hymnal sources
 - `pwa.js`, `sw.js`, `manifest.webmanifest`, `icons/`: install and offline support
 - `fonts/`: self-hosted Big Shoulders Display, IBM Plex Sans and IBM Plex Mono (SIL Open Font License 1.1)
 - `tests/`: Node tests (`npm test`)

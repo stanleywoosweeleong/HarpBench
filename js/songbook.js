@@ -1,5 +1,7 @@
 /* Harp Bench: hymn songbook */
 "use strict";
+// songs the player imported live in their browser and join the bundled hymns
+(state.userSongs||[]).forEach(u=>{ if(u&&u.id&&!SONGS.some(x=>x.id===u.id)) SONGS.push(u); });
 
 /* ---------- hymn songbook ---------- */
 const song={cur:null,specs:[],pos:0,mode:'idle',timer:null,shift:0};
@@ -23,10 +25,11 @@ function noteLabel(n,spec){
   return state.notation==='numbers'?jp(n[0]+song.shift):nName(spec?spec.midi:L.base+state.rootOff+n[0]);
 }
 function renderSongList(){
-  const list=$('sbList'); if(list.children.length) {[...list.children].forEach(b=>{b.setAttribute('aria-current',b.dataset.id===state.song);
+  const list=$('sbList'); if(list.children.length&&list.children.length!==SONGS.length) list.innerHTML='';
+  if(list.children.length) {[...list.children].forEach(b=>{b.setAttribute('aria-current',b.dataset.id===state.song);
     const pr=state.progress[b.dataset.id]; b.querySelector('.sb-best').textContent=pr?`Best ${pr.best}% · played ${pr.plays}×`:'';}); return;}
   SONGS.forEach(s=>{const b=document.createElement('button'); b.className='sb-item'; b.dataset.id=s.id; b.setAttribute('role','listitem');
-    b.innerHTML=`<b>${s.title}</b><span>${s.first}</span><em class="sb-diff"></em><em class="sb-best"></em>`;
+    b.innerHTML=`<b>${s.title}${s.user?' <small class="sb-mine">Yours</small>':''}</b><span>${s.first}</span><em class="sb-diff"></em><em class="sb-best"></em>`;
     b.addEventListener('click',()=>selectSong(s.id));
     list.appendChild(b);});
   renderSongList();
@@ -46,7 +49,9 @@ function renderSongbook(){
     b.setAttribute('aria-pressed',off===state.rootOff);
     b.addEventListener('click',()=>{songStop(); state.rootOff=off; syncOverblows(s,off); save(); changed();}); pb.appendChild(b);});
   $('sbTitle').textContent=s.title;
-  $('sbCredits').textContent=`Words: ${s.words} · Music: ${s.music}`;
+  $('sbCredits').innerHTML=s.user?`Added by you${s.music?' · '+s.music.replace(/</g,'&lt;'):''} · <button class="linkbtn" id="sbRemove">Remove from songbook</button>`:`Words: ${s.words} · Music: ${s.music}`;
+  if(s.user) $('sbRemove').addEventListener('click',()=>{ songStop(); state.userSongs=state.userSongs.filter(u=>u.id!==s.id);
+    SONGS.splice(SONGS.findIndex(x=>x.id===s.id),1); state.song=SONGS[0].id; song.pos=0; save(); renderSongbook(); if(pocketOpen()) renderPocketSheet(); });
   const used=m.specs.filter(Boolean), bends=used.filter(x=>x.bend>0).length, alts=used.filter(x=>x.alt).length, miss=s.notes.filter((n,i)=>n[0]!=null&&!m.specs[i]).length;
   const holes=used.map(x=>x.hi+1);
   const pn=posNumber();
@@ -158,3 +163,19 @@ $('sbRestart').addEventListener('click',()=>{const m=song.mode; songStop(); song
 [...$('sbSpeed').children].forEach(b=>b.addEventListener('click',()=>{state.songRate=+b.dataset.r; save(); renderSongbook();}));
 [...$('sbNotation').children].forEach(b=>b.addEventListener('click',()=>{state.notation=b.dataset.n; save(); renderSongbook();}));
 $('pkSongStop').addEventListener('click',()=>songStop());
+/* ---------- importing your own songs (ABC notation) ---------- */
+function sbAddSong(text){
+  const msg=$('sbAbcMsg');
+  try{
+    const s=abcToSong(text);
+    const h=bestPosition(s);
+    if(h.h.miss>0&&!L.chrom) msg.textContent=`Added. ${h.h.miss} note${h.h.miss>1?'s are':' is'} out of this harp's range in every position; try another harp key.`;
+    else msg.textContent=`Added “${s.title}”.`;
+    state.userSongs.push(s); SONGS.push(s); save();
+    $('sbAbc').value=''; selectSong(s.id);
+  }catch(e){ msg.textContent=e.message||'That text could not be read as ABC notation.'; }
+}
+$('sbAddBtn').addEventListener('click',()=>{const p=$('sbAdd'); p.hidden=!p.hidden; $('sbAddBtn').setAttribute('aria-expanded',!p.hidden); if(!p.hidden) $('sbAbc').focus();});
+$('sbAbcAdd').addEventListener('click',()=>{const t=$('sbAbc').value.trim(); if(t) sbAddSong(t); else $('sbAbcMsg').textContent='Paste a tune first, or open a file.';});
+$('sbAbcFile').addEventListener('change',e=>{const f=e.target.files[0]; if(!f) return; const r=new FileReader();
+  r.onload=()=>{$('sbAbc').value=r.result; sbAddSong(r.result);}; r.readAsText(f); e.target.value='';});

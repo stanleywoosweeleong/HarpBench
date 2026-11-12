@@ -358,3 +358,15 @@ html.pocket-open, html.pocket-open body{overflow:hidden;height:100%;overscroll-b
 .tn-meta{display:flex;flex-direction:column;gap:2px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);min-width:14ch}
 .tn-meta #tnTab{color:var(--brass);font-weight:600}
 #micBtn[aria-pressed="true"]{background:var(--good);border-color:var(--good);color:var(--bg)}
+
+/* importing songs */
+.songbook .section-head{align-items:center}
+.sb-add{display:flex;flex-direction:column;gap:10px;border:1px dashed var(--line);border-radius:10px;padding:12px 14px}
+.sb-add p{margin:0;font-size:12.5px;color:var(--muted);max-width:75ch}
+.sb-add a{color:var(--blue)}
+.sb-add textarea{width:100%;font-family:var(--f-mono);font-size:12.5px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;resize:vertical}
+.sb-add label.btn{cursor:pointer}
+.sb-add-msg{font-size:12.5px;color:var(--muted)}
+.sb-mine{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--brass);margin-left:4px}
+.sb-item[aria-current="true"] .sb-mine{color:var(--bg)}
+.linkbtn{border:0;background:none;padding:0;color:var(--blue);text-decoration:underline;cursor:pointer;font:inherit}
