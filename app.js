@@ -27,7 +27,7 @@ const codeLabel=c=>CODE_LABEL[c]||c.replace(/^(Key|Digit)/,'');
 const BEND_CODES={KeyZ:1,KeyX:2,KeyC:3};
 
 const state={type:'diatonic',key:0,rootOff:7,scale:'blues',mouth:'1',labels:'notes',overblows:false,snap:true,
-  vol:.72,tone:.5,room:.28,vibrato:false,breathMode:'split',pocket:'auto',voice:'sweet',keys:'numbers',bpm:90,beats:4,feel:'straight',click:.6};
+  vol:.72,tone:.5,room:.28,vibrato:false,breathMode:'split',pocket:'auto',voice:'sweet',keys:'numbers',song:'amazing',songRate:1,notation:'letters',bpm:90,beats:4,feel:'straight',click:.6};
 try{const s=JSON.parse(localStorage.getItem('harpbench')||'null'); if(s) Object.assign(state,s,{vibrato:false});}catch(e){}
 function save(){try{localStorage.setItem('harpbench',JSON.stringify(state))}catch(e){}}
 
@@ -215,6 +215,7 @@ function setTouch(id,specs,opts={}){
     else{const nv=startVoice(s,specs.length,opts.stagger?i*opts.stagger:0,opts.legato); if(nv) t.voices.set(key,nv);}
   });
   for(const [k,v] of t.voices) if(!keep.has(k)){v.stop(); t.voices.delete(k);}
+  songHeard(id,t,specs);
   t.specs=specs; t.label=opts.label||null; t.mouthShow=!!opts.mouth;
   refreshLights(); showReadout(specs,opts.label);
 }
@@ -320,7 +321,7 @@ function render(){
   $('legend').querySelectorAll(':scope > span:nth-child(-n+3)').forEach(e=>e.hidden=!scale);
   $('obBtn').hidden=L.chrom; $('snapBtn').hidden=L.chrom;
   $('modShift').innerHTML=L.chrom?'<kbd>Shift</kbd> push the slide in':'<kbd>Shift</kbd> overblow / overdraw (when on)';
-  renderControls(); renderPads(); renderKeymap(); renderPocket(); refreshLights();
+  renderControls(); renderPads(); renderKeymap(); renderPocket(); renderSongbook(); refreshLights();
 }
 function posNumber(){for(let n=1;n<=12;n++) if((7*(n-1))%12===state.rootOff) return n; return 1;}
 function renderControls(){
@@ -662,6 +663,13 @@ function renderPocketSheet(){
     r.querySelector('input').addEventListener('input',e=>{state[key]=+e.target.value; $(key).value=state[key]; if(key==='room'&&ctx) wetGain.gain.setTargetAtTime(state.room*.55,ctx.currentTime,.05); save();});
     c.appendChild(r);
   }
+  {const w=document.createElement('div'); w.className='ctl'; w.innerHTML='<label class="lbl" for="pkSongSel">Hymn</label>';
+   const sel=document.createElement('select'); sel.id='pkSongSel'; SONGS.forEach(x=>sel.add(new Option(x.title,x.id))); sel.value=state.song;
+   sel.addEventListener('change',e=>{songStop(); state.song=e.target.value; song.pos=0; save(); renderSongbook();}); w.appendChild(sel); c.appendChild(w);
+   const mk=(t,f)=>{const b=document.createElement('button'); b.className='btn'; b.textContent=t; b.addEventListener('click',f); c.appendChild(b);};
+   mk('Listen',()=>{endAll(); $('pkSheet').hidden=true; if(song.mode!=='listen') songListen();});
+   mk('Practice',()=>{endAll(); $('pkSheet').hidden=true; if(song.mode!=='practice') songPractice();});
+   mk('Stop song',()=>songStop());}
   const pads=$('pkPads'); pads.innerHTML='';
   DIA_CHORDS.forEach((ch,i)=>{
     const rp=(state.key+ch.d)%12, v=voiceChord(rp,QUAL[ch.q].iv), nm=chordName(rp,ch.q);
@@ -808,6 +816,136 @@ buildMetro($('metroBox'),'mt'); buildMetro($('pkMetroBox'),'pkmt');
 $('pkMetroBtn').addEventListener('click',()=>metroToggle());
 renderMetroState();
 
+/* ---------- hymn songbook ---------- */
+const JIANPU=['1','#1','2','b3','3','4','#4','5','#5','6','b7','7'];
+const song={cur:null,specs:[],pos:0,mode:'idle',timer:null,shift:0};
+function songById(id){return SONGS.find(s=>s.id===id)||SONGS[0];}
+function mapSong(s){
+  // Play in 1st position: the hymn's home note is the harp key. Pick the octave that needs the fewest bends.
+  const reeds=allReeds(); let best=null;
+  for(const o of [-12,0,12,24]){
+    let cost=0, specs=[];
+    for(const n of s.notes){
+      if(n[0]==null){specs.push(null); continue;}
+      const e=reeds.get(L.base+o+n[0]); if(!e){cost+=100; specs.push(null); continue;}
+      cost+=e.cost; specs.push(e.s);
+    }
+    const mids=s.notes.filter(n=>n[0]!=null).map(n=>L.base+o+n[0]);
+    cost+=Math.abs(mids.reduce((a,b)=>a+b,0)/mids.length-(L.base+15))*.04;
+    if(!best||cost<best.cost) best={cost,specs,o};
+  }
+  return best;
+}
+function jp(rel){const o=Math.floor(rel/12), p=((rel%12)+12)%12; return JIANPU[p]+(o>0?'̇'.repeat(o):o<0?'̣'.repeat(-o):'');}
+function noteLabel(n,spec){
+  if(n[0]==null) return '–';
+  return state.notation==='numbers'?jp(n[0]+song.shift):nName(spec?spec.midi:L.base+n[0]);
+}
+function renderSongList(){
+  const list=$('sbList'); if(list.children.length) {[...list.children].forEach(b=>b.setAttribute('aria-current',b.dataset.id===state.song)); return;}
+  SONGS.forEach(s=>{const b=document.createElement('button'); b.className='sb-item'; b.dataset.id=s.id; b.setAttribute('role','listitem');
+    b.innerHTML=`<b>${s.title}</b><span>${s.first}</span><em class="sb-diff"></em>`;
+    b.addEventListener('click',()=>{songStop(); state.song=s.id; song.pos=0; save(); renderSongbook(); if(pocketOpen()) renderPocketSheet();});
+    list.appendChild(b);});
+  renderSongList();
+}
+function renderSongbook(){
+  if(!L) return;
+  const s=songById(state.song); song.cur=s; state.song=s.id;
+  const m=mapSong(s); song.specs=m.specs; song.shift=m.o;
+  if(song.pos>=s.notes.length) song.pos=0;
+  renderSongList();
+  [...$('sbList').children].forEach(b=>{const mm=b.dataset.id===s.id?m:mapSong(songById(b.dataset.id)), sp=mm.specs.filter(Boolean);
+    const hard=sp.filter(x=>x.bend>0||x.alt).length+songById(b.dataset.id).notes.filter((n,i)=>n[0]!=null&&!mm.specs[i]).length*5;
+    const e=b.querySelector('.sb-diff'); e.textContent=hard===0?'Easy':hard<=5?'Some bends':'Advanced'; e.dataset.level=hard===0?'easy':hard<=5?'mid':'hard';});
+  $('sbTitle').textContent=s.title;
+  $('sbCredits').textContent=`Words: ${s.words} · Music: ${s.music}`;
+  const used=m.specs.filter(Boolean), bends=used.filter(x=>x.bend>0).length, alts=used.filter(x=>x.alt).length, miss=s.notes.filter((n,i)=>n[0]!=null&&!m.specs[i]).length;
+  const holes=used.map(x=>x.hi+1);
+  $('sbInfo').innerHTML=`Key of <b>${nName(L.base)}</b> on your ${KEY_LABEL[state.key]} ${L.chrom?'chromatic':'diatonic'} (1st position) · ${s.meter} time · holes <b>${Math.min(...holes)}–${Math.max(...holes)}</b>`
+    +(bends?` · <b>${bends}</b> bent note${bends>1?'s':''}`:' · no bends')+(alts?` · <b>${alts}</b> ${L.chrom?'slide':'overblown'} note${alts>1?'s':''}`:'')
+    +(miss?` · <b>${miss}</b> note${miss>1?'s':''} not on this harp (turn on overblows)`:'');
+  [...$('sbSpeed').children].forEach(b=>b.setAttribute('aria-pressed',+b.dataset.r===state.songRate));
+  [...$('sbNotation').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.n===state.notation));
+  const sc=$('sbScore'); sc.innerHTML=''; let ph=document.createElement('div'); ph.className='phrase';
+  s.notes.forEach((n,i)=>{
+    const spec=m.specs[i], c=document.createElement('button'); c.className='nc'+(n[0]==null?' rest':'')+(n[3].includes('b')?' bar':''); c.dataset.i=i;
+    c.style.setProperty('--d',Math.min(3,n[1]));
+    c.innerHTML=`<span class="t">${n[0]==null?'rest':spec?spec.tab:'?'}</span><span class="n">${noteLabel(n,spec)}</span><span class="s">${n[2]||''}</span>`;
+    c.title=n[0]==null?'Rest':`${spec?spec.tab:'?'} · ${spec?nName(spec.midi)+nOct(spec.midi):''}`;
+    c.addEventListener('click',()=>{songStop(); song.pos=i; songMark(); if(spec) {setTouch('song',[spec],{mouth:true}); setTimeout(()=>endTouch('song'),Math.min(900,songSecs(n)*1000));}});
+    ph.appendChild(c);
+    if(n[3].includes('l')||i===s.notes.length-1){sc.appendChild(ph); ph=document.createElement('div'); ph.className='phrase';}
+  });
+  songMark(); updateSongButtons();
+}
+const songSecs=n=>n[1]*60/(song.cur.bpm*state.songRate);
+function songMark(scroll){
+  const cells=$('sbScore').children; let k=0;
+  document.querySelectorAll('#sbScore .nc').forEach(c=>{const i=+c.dataset.i; c.classList.toggle('now',i===song.pos&&song.mode!=='idle'); c.classList.toggle('done',i<song.pos&&song.mode!=='idle');});
+  if(scroll!==false){const c=document.querySelector(`#sbScore .nc[data-i="${song.pos}"]`), sc=$('sbScore');
+    if(c&&song.mode!=='idle'){const top=c.offsetTop-sc.offsetTop; if(top<sc.scrollTop||top>sc.scrollTop+sc.clientHeight-60) sc.scrollTop=Math.max(0,top-40);}}
+  // next-note hint
+  const s=song.cur, nx=$('sbNext'); if(!s) return;
+  const upcoming=[]; for(let i=song.pos;i<s.notes.length&&upcoming.length<5;i++) if(song.specs[i]) upcoming.push(song.specs[i]);
+  if(song.mode==='practice'&&upcoming.length){
+    nx.innerHTML=`<span class="lbl">Play</span><span class="big">${upcoming[0].tab}</span><span class="msg">${nName(upcoming[0].midi)}${s.notes[song.pos][2]?' · “'+s.notes[song.pos][2]+'”':''}</span><span class="then">then ${upcoming.slice(1).map(x=>x.tab).join('  ')}</span>`;
+  } else if(song.mode==='done'){
+    nx.innerHTML='<span class="msg">Well played. Press Practice to go again, or try a different key.</span>';
+  } else if(song.mode==='listen'){
+    nx.innerHTML=`<span class="msg">Listening… watch the lit holes on the harp.</span>`;
+  } else nx.innerHTML=`<span class="msg">Press Listen to hear it, or Practice to play it yourself one note at a time. Tap any note in the score to hear it.</span>`;
+  // target highlights on the harp
+  const tgt=song.mode==='practice'?song.specs[song.pos]:null;
+  for(const [k,el] of chipEls) el.classList.toggle('target',!!tgt&&k===chipKey(tgt));
+  holeEls.forEach((el,i)=>el.classList.toggle('target',!!tgt&&i===tgt.hi));
+  for(const [k,el] of pkLbl) el.classList.toggle('target',!!tgt&&k===chipKey(tgt));
+  pkHoles.forEach((el,i)=>el.classList.toggle('target',!!tgt&&i===tgt.hi));
+  updatePocketSong();
+}
+function skipRests(){while(song.pos<song.cur.notes.length&&!song.specs[song.pos]) song.pos++;}
+function songStop(){clearTimeout(song.timer); if(song.mode==='listen') endTouch('song'); song.mode='idle'; updateSongButtons(); songMark(false);}
+function updateSongButtons(){$('sbListen').setAttribute('aria-pressed',song.mode==='listen'); $('sbListen').textContent=song.mode==='listen'?'Stop':'Listen';
+  $('sbPractice').setAttribute('aria-pressed',song.mode==='practice'); $('sbPractice').textContent=song.mode==='practice'?'Stop practice':'Practice';}
+function songListen(){
+  if(song.mode==='listen'){songStop(); return;}
+  songStop(); initAudio(); if(song.pos>=song.cur.notes.length-1) song.pos=0; song.mode='listen'; updateSongButtons();
+  const step=()=>{
+    if(song.mode!=='listen') return;
+    if(song.pos>=song.cur.notes.length){endTouch('song'); song.mode='idle'; song.pos=0; updateSongButtons(); songMark(false); return;}
+    const n=song.cur.notes[song.pos], sp=song.specs[song.pos], secs=songSecs(n);
+    songMark();
+    if(sp){ endTouch('song'); setTouch('song',[sp],{mouth:true}); song.timer=setTimeout(()=>{endTouch('song'); song.pos++; song.timer=setTimeout(step,secs*80);},secs*920); }
+    else { endTouch('song'); song.pos++; song.timer=setTimeout(step,secs*1000); }
+  };
+  step();
+}
+function songPractice(){
+  if(song.mode==='practice'){songStop(); return;}
+  songStop(); if(song.pos>=song.cur.notes.length-1) song.pos=0; skipRests(); song.mode='practice'; updateSongButtons(); songMark();
+}
+function songHeard(id,t,specs){
+  // called from setTouch: advance when the player sounds the target pitch (a fresh note or a bend arriving on it)
+  if(song.mode!=='practice'||id==='song'||id==='preview'||id==='demo') return;
+  const tgt=song.specs[song.pos]; if(!tgt) return;
+  const hit=specs.some(s=>Math.round(s.midi)===Math.round(tgt.midi));
+  if(hit&&!t.hitTarget){ song.pos++; skipRests(); if(song.pos>=song.cur.notes.length){song.mode='done'; updateSongButtons();} songMark(); }
+  t.hitTarget=hit;
+}
+function updatePocketSong(){
+  const p=$('pocket'); if(!p||!song.cur) return;
+  const on=song.mode!=='idle'; p.classList.toggle('has-song',on); $('pkSongStop').hidden=!on;
+  if(!on) return;
+  const up=[]; for(let i=song.pos;i<song.cur.notes.length&&up.length<5;i++) if(song.specs[i]) up.push(song.specs[i]);
+  const syl=song.cur.notes[song.pos]?.[2]||'';
+  $('pkSong').innerHTML=song.mode==='done'?'Well played!':`<span>${song.mode==='listen'?'Listen':'Play'}</span><b>${up[0]?up[0].tab:''}</b><i>${up.slice(1).map(x=>x.tab).join(' ')}</i><span>${syl?'“'+syl+'”':''}</span>`;
+}
+$('sbListen').addEventListener('click',songListen);
+$('sbPractice').addEventListener('click',songPractice);
+$('sbRestart').addEventListener('click',()=>{const m=song.mode; songStop(); song.pos=0; if(m==='practice') songPractice(); else if(m==='listen') songListen(); else songMark();});
+[...$('sbSpeed').children].forEach(b=>b.addEventListener('click',()=>{state.songRate=+b.dataset.r; save(); renderSongbook();}));
+[...$('sbNotation').children].forEach(b=>b.addEventListener('click',()=>{state.notation=b.dataset.n; save(); renderSongbook();}));
+$('pkSongStop').addEventListener('click',()=>songStop());
 render();
 updatePocket();
 })();

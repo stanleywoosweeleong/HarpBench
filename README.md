@@ -9,6 +9,7 @@ A playable harmonica that runs in the browser and installs as an app that works 
 - **Chords:** pads for every chord in the harp's key plus a builder for any chord. Chords that fit one breath play as a block, others are rolled.
 - **Expression:** throat vibrato, hand-cup wah, breath strength, tone and room reverb.
 - **Metronome:** 30–260 BPM, tap tempo, 2/3/4/6 beats, quarters, eighths or blues shuffle.
+- **Hymn songbook:** 20 public-domain hymns tabbed for whichever harp and key you choose. **Listen** plays the melody and lights each hole; **Practice** waits for you to play each note before moving on. Notes show as harp tab plus letter names or numbers (1 2 3), with the first verse under the notes.
 - **Phone mode:** turn a phone sideways and the whole screen becomes the harmonica. Top half blows, bottom half draws, drag away from the comb to bend. An optional thumb pad mode lets you hold the left pad to draw so you can play without looking.
 
 ## Playing
@@ -26,6 +27,14 @@ A playable harmonica that runs in the browser and installs as an app that works 
 | Change key | Key strip | `←` / `→` |
 
 Prefer the older letters-only layout (`Q`–`P` blow, `A`–`;` draw, `1`–`0` chords)? Switch it under **Keyboard → Layout**.
+
+## Songbook
+
+Amazing Grace · Holy, Holy, Holy · Be Thou My Vision · Great Is Thy Faithfulness · What a Friend We Have in Jesus · Blessed Assurance · It Is Well with My Soul · Rock of Ages · Nearer, My God, to Thee · Joyful, Joyful, We Adore Thee · Doxology · Come, Thou Fount of Every Blessing · Jesus Loves Me · Crown Him with Many Crowns · When I Survey the Wondrous Cross · O for a Thousand Tongues to Sing · Abide with Me · Praise to the Lord, the Almighty · Silent Night · The Old Rugged Cross
+
+Each hymn is played in 1st position: its home note is the key of your harp, and the app picks the octave that needs the fewest bends. Each song is tagged Easy (no bends), Some bends, or Advanced.
+
+Melodies and first-verse lyrics are public domain and were transcribed from the [Open Hymnal Project](http://openhymnal.org) ABC files (melody line only). The data lives in `songs.js`.
 
 ## Install and play offline
 
@@ -56,6 +65,7 @@ Then open <http://localhost:8000>. Service workers need `http://localhost` or HT
 ## Files
 
 - `index.html`: page markup
+- `songs.js`: the hymn library (melody, rhythm and verse 1 for each song)
 - `styles.css`: styles, with light and dark themes
 - `app.js`: the instrument: tuning layouts, sound engine (Web Audio), touch and keyboard input, chords, metronome, phone mode
 - `pwa.js`: service worker registration, install button, update prompt
