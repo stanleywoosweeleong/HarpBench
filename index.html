@@ -24,7 +24,17 @@
     <div class="brand">
       <h1>Harp Bench</h1>
       <p>A playable 10-hole diatonic and 12-hole chromatic harmonica. Blow, draw, bend, overblow, slide and play chords in any key.</p>
-      <div class="app-bar"><button class="btn" id="installBtn" hidden>Install app</button><span class="offline-pill" id="offlinePill" hidden>Ready offline</span><span class="audio-note" id="iosHint" hidden>To install on iPhone: Share, then Add to Home Screen.</span></div>
+      <div class="app-bar"><button class="btn" id="installBtn" hidden>Install app</button><span class="offline-pill" id="offlinePill" hidden>Ready offline</span></div>
+      <div class="install-tip" id="iosHint" hidden role="note" aria-labelledby="iosHintTitle">
+        <b id="iosHintTitle">Install Harp Bench on your iPhone</b>
+        <p id="iosInApp" hidden>This page is open inside another app, which can't add apps to the Home Screen. Open it in Safari first: use the app's “Open in Safari” or browser button, or copy the address into Safari.</p>
+        <ol>
+          <li>In Safari, tap <b>Share</b> <svg class="share-ico" viewBox="0 0 20 24" aria-hidden="true"><path d="M10 2v13M5.5 6.5 10 2l4.5 4.5M4 10H2.5v12h15V10H16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>. On recent iOS versions it may be in the <b>•••</b> menu.</li>
+          <li>Choose <b>Add to Home Screen</b>, then <b>Add</b>.</li>
+          <li>Open Harp Bench from its new icon. It runs full screen and works offline.</li>
+        </ol>
+        <button class="btn" id="iosHintClose">Got it</button>
+      </div>
     </div>
     <div class="readout" aria-live="polite">
       <div><div class="lbl">Sounding</div><div class="np-note" id="npNote">—</div></div>

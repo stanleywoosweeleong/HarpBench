@@ -48,5 +48,16 @@
   // iPhone / iPad: Safari has no install prompt, so explain the Share menu route
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const standalone = navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-  if (isIOS && !standalone) $('iosHint').hidden = false;
+  let dismissed = false;
+  try { dismissed = localStorage.getItem('harpbench-ioshint') === '1'; } catch (e) {}
+  if (isIOS && !standalone && !dismissed) {
+    $('iosHint').hidden = false;
+    // Safari's user agent says "Safari"; built-in browsers inside other apps usually do not (Chrome and Firefox on iOS say CriOS / FxiOS and can add to the Home Screen from their share menu)
+    const ua = navigator.userAgent;
+    if (!/Safari\//.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua)) $('iosInApp').hidden = false;
+  }
+  $('iosHintClose').addEventListener('click', () => {
+    $('iosHint').hidden = true;
+    try { localStorage.setItem('harpbench-ioshint', '1'); } catch (e) {}
+  });
 })();

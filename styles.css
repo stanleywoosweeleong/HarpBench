@@ -405,3 +405,11 @@ html.pocket-open, html.pocket-open body{overflow:hidden;height:100%;overscroll-b
 .mh-n.done{border-style:solid;border-color:var(--good);color:var(--ink)}
 .mh-n.now{border-color:var(--brass);box-shadow:0 0 0 2px var(--brass)}
 #mhRec[aria-pressed="true"]{background:var(--bad);border-color:var(--bad);color:var(--bg)}
+
+/* iPhone install steps */
+.install-tip{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding:12px 14px;border:1px solid var(--brass);border-radius:10px;background:var(--panel);max-width:46ch}
+.install-tip b{font-weight:600}
+.install-tip p{margin:0;color:var(--bad);font-size:13px}
+.install-tip ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.install-tip .btn{align-self:flex-start}
+.share-ico{width:14px;height:17px;vertical-align:-3px;color:var(--blue)}

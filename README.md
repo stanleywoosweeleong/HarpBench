@@ -67,7 +67,7 @@ The app is plain static files with a service worker, so any static host works. W
    `https://stanleywoosweeleong.github.io/HarpBench/`.
 3. Open that address once while online. When the page shows **Ready offline**, everything is cached.
 4. Install it:
-   - **iPhone / iPad (Safari):** Share → **Add to Home Screen**.
+   - **iPhone / iPad:** there is no automatic install prompt on iOS. Open the page in **Safari** itself (a page opened from inside another app, such as a link tapped in a chat app, runs in that app's built-in browser and cannot be installed), tap **Share** (on recent iOS versions it may be in the **•••** menu), then **Add to Home Screen**. The page shows these steps on an iPhone.
    - **Android / desktop Chrome or Edge:** the **Install app** button in the header, or the install icon in the address bar.
 
 On iPhone, turn off the silent switch if you hear nothing.
