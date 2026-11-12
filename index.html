@@ -121,6 +121,18 @@
     </div>
   </section>
 
+  <section class="tuner" aria-label="Microphone tuner" id="tunerBox">
+    <div class="section-head"><h2>Microphone</h2><p>Play your real harmonica. The tuner shows the note, how far off it is, and which hole it is on this harp. While the microphone is on, Practice and Play along listen to you.</p></div>
+    <div class="tn-row">
+      <button class="btn" id="micBtn" aria-pressed="false">Use microphone</button>
+      <div class="tn-note" aria-live="polite"><span id="tnNote">–</span><sub id="tnOct"></sub></div>
+      <div class="tn-meter" aria-hidden="true"><span class="tn-mark" style="left:0">−50</span><span class="tn-mark" style="left:50%">0</span><span class="tn-mark" style="left:100%">+50</span><div class="tn-needle" id="tnNeedle"></div></div>
+      <div class="tn-meta"><span id="tnCents"></span><span id="tnHz"></span><span id="tnTab"></span></div>
+      <label class="range" for="micGate"><span class="lbl">Ignore sounds below</span><input id="micGate" type="range" min="0.002" max="0.05" step="0.001"></label>
+    </div>
+    <p class="audio-note" id="micMsg">Works in the installed app. Use headphones when Listen or the harmony is playing, or the microphone will hear the app.</p>
+  </section>
+
   <section class="songbook" aria-label="Songbook" id="songbook">
     <div class="section-head"><h2>Hymn songbook</h2><p>20 public-domain hymns, tabbed for whatever harp you have selected above. Listen first, then practise note by note.</p></div>
     <div class="sb-grid">
@@ -233,12 +245,14 @@
 </div>
 <script src="songs.js"></script>
 <script src="js/core.js"></script>
+<script src="js/pitch.js"></script>
 <script src="js/theory.js"></script>
 <script src="js/harp.js"></script>
 <script src="js/pocket.js"></script>
 <script src="js/metronome.js"></script>
 <script src="js/songbook.js"></script>
 <script src="js/transport.js"></script>
+<script src="js/mic.js"></script>
 <script src="js/main.js"></script>
 <script src="pwa.js"></script>
 </body>

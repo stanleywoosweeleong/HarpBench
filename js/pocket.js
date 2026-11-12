@@ -81,7 +81,8 @@ function renderPocketSheet(){
    mk('Listen',()=>{endAll(); $('pkSheet').hidden=true; if(song.mode!=='listen') songListen();});
    mk('Play along',()=>{endAll(); $('pkSheet').hidden=true; if(song.mode!=='along') songAlong();});
    mk('Practice',()=>{endAll(); $('pkSheet').hidden=true; if(song.mode!=='practice') songPractice();});
-   mk('Stop song',()=>songStop());}
+   mk('Stop song',()=>songStop());
+   const mb=document.createElement('button'); mb.className='btn'; mb.id='pkMic'; mb.textContent=mic.on?'Microphone: on':'Microphone: off'; mb.addEventListener('click',micToggle); c.appendChild(mb);}
   const pads=$('pkPads'); pads.innerHTML='';
   DIA_CHORDS.forEach((ch,i)=>{
     const rp=(state.key+ch.d)%12, v=voiceChord(rp,QUAL[ch.q].iv), nm=chordName(rp,ch.q);

@@ -44,6 +44,10 @@ Melodies and first-verse lyrics are public domain and were transcribed from the 
 
 Listen and Play along run on the audio clock, so the melody, the metronome, the count-in bar and the harmony stay locked together. The metronome follows the hymn: its tempo (times the speed setting), its beats per bar (6/8 and 9/8 are counted in dotted beats), and its pickup notes, so beat 1 lands on the first full bar. **Loop this line** repeats the line that holds the selected note; tap a note in the score to choose where to start. **Guide melody** plays the tune quietly while you play along. Every verse is included.
 
+### Microphone
+
+Press **Use microphone** and play your real harmonica. The tuner shows the note, how many cents sharp or flat it is (handy for checking bends), and which hole it is on the selected harp. While the microphone is on, **Practice** and **Play along** listen to your harmonica instead of waiting for taps. Use headphones when Listen or the harmony is playing, or the microphone hears the app. The microphone works in the installed app and on the GitHub Pages address; some embedded views do not allow it.
+
 ## Install and play offline
 
 The app is plain static files with a service worker, so any static host works. With GitHub Pages:

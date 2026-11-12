@@ -344,3 +344,17 @@ html.pocket-open, html.pocket-open body{overflow:hidden;height:100%;overscroll-b
 .sb-item[aria-current="true"] .sb-best{color:var(--bg);opacity:.8}
 .sb-ctl.sb-opts .btn[aria-pressed="true"]{background:transparent;color:var(--brass);border-color:var(--brass)}
 .sb-ctl.sb-opts .btn[aria-pressed="true"]::before{content:"✓ "}
+
+/* microphone tuner */
+.tuner{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.tn-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px}
+.tn-note{font-family:var(--f-display);font-weight:800;font-size:44px;line-height:1;min-width:2.4ch;font-variant-numeric:tabular-nums}
+.tn-note sub{font-size:18px;color:var(--muted);font-weight:600}
+.tn-meter{position:relative;flex:1 1 220px;max-width:360px;height:34px;border-bottom:2px solid var(--line);margin-top:6px}
+.tn-mark{position:absolute;bottom:4px;transform:translateX(-50%);font-size:10px;color:var(--muted);font-family:var(--f-mono)}
+.tn-meter::after{content:"";position:absolute;left:50%;bottom:-6px;height:10px;border-left:2px solid var(--muted)}
+.tn-needle{position:absolute;left:50%;bottom:-2px;width:4px;height:30px;margin-left:-2px;border-radius:2px;background:var(--off);transition:left .08s}
+.tn-needle[data-ok="1"]{background:var(--good)}
+.tn-meta{display:flex;flex-direction:column;gap:2px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);min-width:14ch}
+.tn-meta #tnTab{color:var(--brass);font-weight:600}
+#micBtn[aria-pressed="true"]{background:var(--good);border-color:var(--good);color:var(--bg)}
