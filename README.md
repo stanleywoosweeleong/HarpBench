@@ -58,6 +58,12 @@ Under **Microphone → My harp**, **Record my harp** walks you through every blo
 
 The built-in voices are synthesized. Bends on them now darken and hollow out the tone as they deepen, the way a real bend does, as well as dropping the pitch.
 
+### Languages
+
+English, 中文 (Simplified Chinese) and Bahasa Melayu, chosen with **Language** at the top (or in phone mode's Settings). The first time, the app follows the device language; after that it remembers your choice. Hymn lyrics stay in English (they are the English hymns; most published Chinese and Malay translations are still under copyright), and in Chinese each hymn title shows its familiar Chinese name beside the English one. Note names and harp tab are the same in every language.
+
+Translations live in `js/i18n.js`, keyed by the English text, so anything without a translation falls back to English. To fix or add a translation, edit the `T` table (or a pattern in `TP` for text with numbers in it); `npm test` checks every entry has both languages.
+
 ## Install and play offline
 
 The app is plain static files with a service worker, so any static host works. With GitHub Pages:
@@ -100,6 +106,7 @@ Then open <http://localhost:8000>. Service workers need `http://localhost` or HT
 - `js/pitch.js`, `js/mic.js`: microphone pitch detection and tuner
 - `js/sampler.js`: My harp recorder and the voice that plays your recordings
 - `js/transport.js`: Listen and Play along on the audio clock (metronome, count-in, harmony, grading)
+- `js/i18n.js`: languages (English, 中文, Bahasa Melayu)
 - `js/main.js`: start-up
 - `tools/build_songs.py`, `tools/abcparse.py`, `tools/openhymnal/`: rebuild `songs.js` from the Open Hymnal sources
 - `pwa.js`, `sw.js`, `manifest.webmanifest`, `icons/`: install and offline support

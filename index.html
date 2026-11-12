@@ -29,8 +29,8 @@
         <b id="iosHintTitle">Install Harp Bench on your iPhone</b>
         <p id="iosInApp" hidden>This page is open inside another app, which can't add apps to the Home Screen. Open it in Safari first: use the app's “Open in Safari” or browser button, or copy the address into Safari.</p>
         <ol>
-          <li>In Safari, tap <b>Share</b> <svg class="share-ico" viewBox="0 0 20 24" aria-hidden="true"><path d="M10 2v13M5.5 6.5 10 2l4.5 4.5M4 10H2.5v12h15V10H16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>. On recent iOS versions it may be in the <b>•••</b> menu.</li>
-          <li>Choose <b>Add to Home Screen</b>, then <b>Add</b>.</li>
+          <li><span data-i18n-html>In Safari, tap <b>Share</b></span> <svg class="share-ico" viewBox="0 0 20 24" aria-hidden="true"><path d="M10 2v13M5.5 6.5 10 2l4.5 4.5M4 10H2.5v12h15V10H16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n-html>. On recent iOS versions it may be in the <b>•••</b> menu.</span></li>
+          <li data-i18n-html>Choose <b>Add to Home Screen</b>, then <b>Add</b>.</li>
           <li>Open Harp Bench from its new icon. It runs full screen and works offline.</li>
         </ol>
         <button class="btn" id="iosHintClose">Got it</button>
@@ -54,6 +54,13 @@
 
   <div class="rotate-tip"><span><b>Holding a phone?</b> Turn it sideways and it becomes the harmonica.</span><button class="btn" id="pocketBtn2">Phone harp mode</button></div>
   <section class="controls" aria-label="Instrument settings">
+    <div class="ctl"><span class="lbl">Language</span>
+      <div class="seg" id="langSeg" data-i18n-skip>
+        <button data-lang="en" lang="en" aria-pressed="true">English</button>
+        <button data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
+        <button data-lang="ms" lang="ms" aria-pressed="false">Bahasa Melayu</button>
+      </div>
+    </div>
     <div class="ctl"><span class="lbl">Instrument</span>
       <div class="seg" id="typeSeg">
         <button id="tDia" data-type="diatonic" aria-pressed="true">Diatonic · 10 hole</button>
@@ -150,7 +157,7 @@
     <p class="audio-note" id="micMsg">Works in the installed app. Use headphones when Listen or the harmony is playing, or the microphone will hear the app.</p>
     <div class="myharp" id="myHarp">
       <div class="mh-head"><h3>My harp</h3><span id="mhStatus"></span></div>
-      <p>Record each note of your own harmonica once, and the <b>My harp</b> voice plays your recordings, bends included. Use the harp in the key selected above, in a quiet room. Recordings stay on this device.</p>
+      <p data-i18n-html>Record each note of your own harmonica once, and the <b>My harp</b> voice plays your recordings, bends included. Use the harp in the key selected above, in a quiet room. Recordings stay on this device.</p>
       <div class="sb-ctl"><button class="btn" id="mhRec" aria-pressed="false">Record my harp</button><button class="btn" id="mhSkip" hidden>Skip this note</button><button class="btn" id="mhClear">Delete recordings</button></div>
       <div class="mh-prompt" id="mhPrompt" aria-live="polite"></div>
       <div class="mh-grid" id="mhGrid"></div>
@@ -161,7 +168,7 @@
     <div class="section-head"><h2>Hymn songbook</h2><p>20 public-domain hymns, tabbed for whatever harp you have selected above. Listen first, then practise note by note.</p>
       <button class="btn" id="sbAddBtn" aria-expanded="false" aria-controls="sbAdd">Add your own song</button></div>
     <div class="sb-add" id="sbAdd" hidden>
-      <p>Paste a tune in <a href="https://abcnotation.com/learn" target="_blank" rel="noopener">ABC notation</a> or open an .abc file. Many hymns and folk tunes are shared this way, for example on abcnotation.com or openhymnal.org. Lyrics on <code>w:</code> lines and extra voices for harmony are picked up too.</p>
+      <p data-i18n-html>Paste a tune in <a href="https://abcnotation.com/learn" target="_blank" rel="noopener">ABC notation</a> or open an .abc file. Many hymns and folk tunes are shared this way, for example on abcnotation.com or openhymnal.org. Lyrics on <code>w:</code> lines and extra voices for harmony are picked up too.</p>
       <textarea id="sbAbc" rows="8" spellcheck="false" placeholder="X:1&#10;T:My tune&#10;M:3/4&#10;L:1/4&#10;K:C&#10;G | c2 e/c/ | e2 d | c2 A | G2 |]&#10;w: A- maz- ing grace how sweet the sound"></textarea>
       <div class="sb-ctl"><label class="btn" for="sbAbcFile">Open .abc file</label><input type="file" id="sbAbcFile" accept=".abc,.txt,text/plain" hidden>
         <button class="btn" id="sbAbcAdd">Add to songbook</button><span class="sb-add-msg" id="sbAbcMsg" role="status"></span></div>
@@ -276,6 +283,7 @@
 </div>
 <script src="songs.js"></script>
 <script src="js/core.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/pitch.js"></script>
 <script src="js/theory.js"></script>
 <script src="js/abc.js"></script>

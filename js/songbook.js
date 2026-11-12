@@ -29,7 +29,7 @@ function renderSongList(){
   if(list.children.length) {[...list.children].forEach(b=>{b.setAttribute('aria-current',b.dataset.id===state.song);
     const pr=state.progress[b.dataset.id]; b.querySelector('.sb-best').textContent=pr?`Best ${pr.best}% · played ${pr.plays}×`:'';}); return;}
   SONGS.forEach(s=>{const b=document.createElement('button'); b.className='sb-item'; b.dataset.id=s.id; b.setAttribute('role','listitem');
-    b.innerHTML=`<b>${esc(s.title)}${s.user?' <small class="sb-mine">Yours</small>':''}</b><span>${esc(s.first)}</span><em class="sb-diff"></em><em class="sb-best"></em>`;
+    b.innerHTML=`<b>${esc(s.title)}${s.user?' <small class="sb-mine">Yours</small>':''}</b><span data-i18n-skip>${esc(s.first)}</span><em class="sb-diff"></em><em class="sb-best"></em>`;
     b.addEventListener('click',()=>selectSong(s.id));
     list.appendChild(b);});
   renderSongList();
@@ -64,7 +64,7 @@ function renderSongbook(){
   s.notes.forEach((n,i)=>{
     const spec=m.specs[i], c=document.createElement('button'); c.className='nc'+(n[0]==null?' rest':'')+(n[3].includes('b')?' bar':''); c.dataset.i=i;
     c.style.setProperty('--d',Math.min(3,n[1]));
-    c.innerHTML=`<span class="t">${n[0]==null?'rest':spec?spec.tab:'?'}</span><span class="n">${noteLabel(n,spec)}</span><span class="s">${esc(sylAt(s,i))}</span>`;
+    c.innerHTML=`<span class="t">${n[0]==null?'rest':spec?spec.tab:'?'}</span><span class="n">${noteLabel(n,spec)}</span><span class="s" data-i18n-skip>${esc(sylAt(s,i))}</span>`;
     c.title=n[0]==null?'Rest':`${spec?spec.tab:'?'} · ${spec?nName(spec.midi)+nOct(spec.midi):''}`;
     c.addEventListener('click',()=>{songStop(); song.pos=i; song.picked=true; songMark(); if(spec) {setTouch('song',[spec],{mouth:true}); setTimeout(()=>endTouch('song'),Math.min(900,songSecs(n)*1000));}});
     ph.appendChild(c);

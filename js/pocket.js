@@ -78,6 +78,8 @@ function renderPocketSheet(){
   const c=$('pkCtl'); c.innerHTML='';
   c.appendChild(seg('Instrument',[['diatonic','Diatonic 10'],['chromatic','Chromatic 12']],state.type,v=>{if(v!==state.type){state.type=v; if(v==='chromatic'){state.rootOff=0;state.scale='major';}else{state.rootOff=7;state.scale='blues';} changed();}}));
   c.appendChild(seg('Harp key',KEY_LABEL.map((k,i)=>[i,k]),state.key,v=>{state.key=+v; changed();}));
+  { const lg=seg('Language',Object.entries(LANGS).map(([k,v])=>[k,v]),i18nLang(),v=>{setLang(v); renderPocketSheet();});
+    lg.querySelector('.seg').setAttribute('data-i18n-skip',''); lg.style.order=-2; c.appendChild(lg); }
   c.appendChild(seg('Voice',Object.entries(VOICES).map(([k,v])=>[k,v.label]),state.voice,v=>{initAudio(); setVoice(v);}));
   c.appendChild(seg('Breath control',[['split','Top / bottom half'],['thumb','Left thumb pad']],state.breathMode,v=>{state.breathMode=v; changed();}));
   c.appendChild(seg('Mouth',[['1','Single'],['2','2'],['3','3'],['4','4'],['oct','Octave split']],state.mouth,v=>{state.mouth=v; save(); renderPocketSheet();}));

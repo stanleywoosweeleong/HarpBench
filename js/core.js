@@ -27,7 +27,7 @@ const codeLabel=c=>CODE_LABEL[c]||c.replace(/^(Key|Digit)/,'');
 const BEND_CODES={KeyZ:1,KeyX:2,KeyC:3};
 
 const state={type:'diatonic',key:0,rootOff:7,scale:'blues',mouth:'1',labels:'notes',overblows:false,snap:true,
-  vol:.72,tone:.5,room:.28,vibrato:false,breathMode:'split',pocket:'auto',voice:'sweet',keys:'numbers',song:'amazing',songRate:1,notation:'letters',verse:0,songClick:true,countIn:true,backing:true,guide:false,loopLine:false,backVol:.6,progress:{},micGate:.01,userSongs:[],bpm:90,beats:4,feel:'straight',click:.6};
+  vol:.72,tone:.5,room:.28,vibrato:false,breathMode:'split',pocket:'auto',lang:'',voice:'sweet',keys:'numbers',song:'amazing',songRate:1,notation:'letters',verse:0,songClick:true,countIn:true,backing:true,guide:false,loopLine:false,backVol:.6,progress:{},micGate:.01,userSongs:[],bpm:90,beats:4,feel:'straight',click:.6};
 try{const s=JSON.parse(localStorage.getItem('harpbench')||'null'); if(s) Object.assign(state,s,{vibrato:false});}catch(e){}
 function save(){try{localStorage.setItem('harpbench',JSON.stringify(state))}catch(e){}}
 

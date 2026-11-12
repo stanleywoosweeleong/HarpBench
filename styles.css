@@ -10,9 +10,9 @@ img{max-width:100%}
   --chip:#FFFFFF; --chip-ink:#1B2532; --tongue:#C77F86;
   --wood-a:#8E5A33; --wood-b:#5A321A; --slot:#140C07;
   --chrome-a:#F5F7F9; --chrome-b:#AEB6BF; --chrome-c:#7E8791; --engrave:#5D6670;
-  --f-display:"Big Shoulders Display","Oswald","Arial Narrow",Impact,sans-serif;
-  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --f-display:"Big Shoulders Display","Oswald","Arial Narrow",Impact,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,"PingFang SC","Microsoft YaHei",monospace;
   --chip-h:30px; --chip-gap:4px;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){

@@ -1,12 +1,13 @@
 /* Harp Bench service worker: caches the whole app so it plays offline.
    Bump VERSION whenever any file changes so installed copies update. */
-const VERSION = 'harpbench-v1.12.4';
+const VERSION = 'harpbench-v1.13.0';
 const ASSETS = [
   './',
   'index.html',
   'styles.css',
   'songs.js',
   'js/core.js',
+  'js/i18n.js',
   'js/pitch.js',
   'js/theory.js',
   'js/abc.js',
