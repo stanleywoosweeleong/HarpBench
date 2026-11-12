@@ -423,3 +423,7 @@ html.pocket-open, html.pocket-open body{overflow:hidden;height:100%;overscroll-b
 
 /* iOS zooms the page when a form field with text under 16px is tapped; keep them at 16px on touch screens */
 @media (pointer:coarse){ select,textarea,input:not([type="range"]):not([type="file"]){font-size:16px} }
+
+/* iOS zooms on a quick double tap. Playing the same note twice is normal on an instrument, so turn double-tap zoom
+   off everywhere; elements that need stricter handling (the harp: none, the phone settings sheet: pan-y) keep it. */
+*{touch-action:manipulation}
