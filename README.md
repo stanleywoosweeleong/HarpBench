@@ -72,6 +72,8 @@ The app is plain static files with a service worker, so any static host works. W
 
 On iPhone, turn off the silent switch if you hear nothing.
 
+If you host the app at a different path, change `"id"` in `manifest.webmanifest` to that path. Chrome identifies an installed app by this id, resolved against the bare domain (so `"./"` would mean the whole domain); two apps with the same id on one domain count as one app, and the second can't be installed.
+
 ## Updating
 
 When you change any file, bump `VERSION` in `sw.js`. Installed copies show an **Update** prompt the next time they are opened online.

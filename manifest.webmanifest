@@ -2,7 +2,7 @@
   "name": "Harp Bench",
   "short_name": "Harp Bench",
   "description": "A playable diatonic and chromatic harmonica with bends, overblows, chords and a metronome. Turn your phone sideways to hold it like a harmonica.",
-  "id": "./",
+  "id": "/HarpBench/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
