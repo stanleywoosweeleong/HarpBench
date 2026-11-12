@@ -5,12 +5,24 @@ let leftHeld=false, leftK=0, leftY0=0, altHeld=false, wakeLock=null;
 const pocketMQ=window.matchMedia('(orientation: landscape) and (max-height: 600px) and (pointer: coarse)');
 let pkLbl=new Map(), pkHalves=[], pkHoles=[];
 function pocketOpen(){return !$('pocket').hidden}
-// Phone mode is an instrument: two thumbs on the screen must not pinch-zoom the page (iOS ignores user-scalable).
+// Harp Bench is an instrument, so its scale is fixed at 100%. iOS can still zoom (a tapped field, rotating, two thumbs
+// read as a pinch) and then keeps that zoom; rewriting the viewport with maximum-scale=1 snaps it back to 100%.
+function resetZoom(){
+  const m=document.querySelector('meta[name="viewport"]'); if(!m) return;
+  const want='width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover';
+  m.setAttribute('content',want.replace('maximum-scale=1','maximum-scale=1.01')); // a real change forces iOS to re-apply it
+  requestAnimationFrame(()=>m.setAttribute('content',want));
+}
+window.addEventListener('orientationchange',()=>setTimeout(resetZoom,300));
+if(window.visualViewport) visualViewport.addEventListener('resize',()=>{ if(visualViewport.scale>1.01) resetZoom(); });
+document.addEventListener('change',e=>{ if(e.target&&e.target.tagName==='SELECT') setTimeout(resetZoom,100); });
+document.addEventListener('focusout',e=>{ if(e.target&&/^(SELECT|INPUT|TEXTAREA)$/.test(e.target.tagName)) setTimeout(resetZoom,100); });
+// two thumbs on the screen must not pinch-zoom the page
 ['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>{ if(pocketOpen()) e.preventDefault(); },{passive:false}));
 function updatePocket(){
   const show=state.pocket==='on'||(state.pocket!=='off'&&pocketMQ.matches);
   if(show===pocketOpen()) return;
-  endAll(); $('pocket').hidden=!show; document.documentElement.classList.toggle('pocket-open',show);
+  endAll(); $('pocket').hidden=!show; document.documentElement.classList.toggle('pocket-open',show); resetZoom();
   if(!show){$('pkSheet').hidden=true; try{wakeLock&&wakeLock.release()}catch(e){} wakeLock=null;}
 }
 function wake(){ if(wakeLock||!navigator.wakeLock) return; navigator.wakeLock.request('screen').then(w=>{wakeLock=w; w.addEventListener('release',()=>{wakeLock=null});}).catch(()=>{}); }
