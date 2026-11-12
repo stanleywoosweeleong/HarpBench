@@ -44,7 +44,7 @@
         <button id="tChr" data-type="chromatic" aria-pressed="false">Chromatic · 12 hole</button>
       </div>
     </div>
-    <div class="ctl" style="flex:1 1 360px"><span class="lbl">Harp key <span style="letter-spacing:0;text-transform:none;font-weight:400">( − / = )</span></span>
+    <div class="ctl" style="flex:1 1 360px"><span class="lbl">Harp key <span style="letter-spacing:0;text-transform:none;font-weight:400">( ← / → )</span></span>
       <div class="keys" id="keyRow"></div>
     </div>
     <div class="ctl"><label class="lbl" for="posSel">Play in</label><select id="posSel"></select></div>
@@ -142,15 +142,21 @@
   </section>
 
   <section aria-label="Keyboard">
-    <div class="section-head"><h2>Keyboard</h2><p>Top letter row blows, home row draws. Hold modifiers while a note sounds.</p></div>
+    <div class="section-head"><h2>Keyboard</h2><p id="kbIntro">Number keys blow, the letter right below each number draws the same hole. Hold modifiers while a note sounds.</p></div>
+    <div class="ctl" style="margin-bottom:10px;align-items:flex-start"><span class="lbl">Layout</span>
+      <div class="seg" id="kbSeg">
+        <button id="kbNum" data-k="numbers" aria-pressed="true">Numbers 1–0 blow</button>
+        <button id="kbLet" data-k="letters" aria-pressed="false">Letters Q–P blow</button>
+      </div>
+    </div>
     <div class="keymap" id="keymap"></div>
     <div class="mods">
       <span><kbd>Z</kbd> <kbd>X</kbd> <kbd>C</kbd> bend ½, 1, 1½ steps</span>
       <span id="modShift"><kbd>Shift</kbd> overblow / overdraw</span>
       <span><kbd>Space</kbd> throat vibrato while held</span>
       <span><kbd>M</kbd> cup hands (release for a wah)</span>
-      <span><kbd>1</kbd>–<kbd>9</kbd>, <kbd>0</kbd> chord pads</span>
-      <span><kbd>−</kbd> <kbd>=</kbd> change harp key</span>
+      <span id="modChords"><kbd>A</kbd>–<kbd>;</kbd> chord pads</span>
+      <span id="modKey"><kbd>←</kbd> <kbd>→</kbd> change harp key</span>
       <span><kbd>B</kbd> start / stop the metronome</span>
     </div>
     <p class="audio-note">Turn off your phone's silent switch if you hear nothing. Multi-touch works: hold the slide button with one finger and play with another.</p>

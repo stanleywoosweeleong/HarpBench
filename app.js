@@ -13,13 +13,21 @@ const QUAL={maj:{iv:[0,4,7],s:''},min:{iv:[0,3,7],s:'m'},dim:{iv:[0,3,6],s:'dim'
   m7:{iv:[0,3,7,10],s:'m7'},maj7:{iv:[0,4,7,11],s:'maj7'},'6':{iv:[0,4,7,9],s:'6'},sus4:{iv:[0,5,7],s:'sus4'},m7b5:{iv:[0,3,6,10],s:'m7♭5'}};
 const DIA_CHORDS=[{d:0,q:'maj',r:'I'},{d:2,q:'min',r:'ii'},{d:4,q:'min',r:'iii'},{d:5,q:'maj',r:'IV'},{d:7,q:'maj',r:'V'},
   {d:9,q:'min',r:'vi'},{d:11,q:'dim',r:'vii°'},{d:7,q:'7',r:'V7'},{d:2,q:'m7',r:'ii7'}];
-const BLOW_CODES=['KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP','BracketLeft','BracketRight'];
-const DRAW_CODES=['KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL','Semicolon','Quote','Backslash'];
-const CODE_LABEL={BracketLeft:'[',BracketRight:']',Semicolon:';',Quote:"'",Backslash:'\\'};
+const ROW_NUM=['Digit1','Digit2','Digit3','Digit4','Digit5','Digit6','Digit7','Digit8','Digit9','Digit0','Minus','Equal'];
+const ROW_Q=['KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP','BracketLeft','BracketRight'];
+const ROW_A=['KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL','Semicolon','Quote','Backslash'];
+/* Keyboard layouts. "numbers": hole n is the number key n (blow) and the letter right below it (draw). */
+const LAYOUTS={
+  numbers:{label:'Numbers 1–0',blow:ROW_NUM,draw:ROW_Q,chords:ROW_A.slice(0,10),keyDown:'ArrowLeft',keyUp:'ArrowRight'},
+  letters:{label:'Letters Q–P',blow:ROW_Q,draw:ROW_A,chords:ROW_NUM.slice(0,10),keyDown:'Minus',keyUp:'Equal'}
+};
+const KL=()=>LAYOUTS[state.keys]||LAYOUTS.numbers;
+const CODE_LABEL={BracketLeft:'[',BracketRight:']',Semicolon:';',Quote:"'",Backslash:'\\',Minus:'-',Equal:'=',ArrowLeft:'←',ArrowRight:'→'};
+const codeLabel=c=>CODE_LABEL[c]||c.replace(/^(Key|Digit)/,'');
 const BEND_CODES={KeyZ:1,KeyX:2,KeyC:3};
 
 const state={type:'diatonic',key:0,rootOff:7,scale:'blues',mouth:'1',labels:'notes',overblows:false,snap:true,
-  vol:.72,tone:.5,room:.28,vibrato:false,breathMode:'split',pocket:'auto',voice:'sweet',bpm:90,beats:4,feel:'straight',click:.6};
+  vol:.72,tone:.5,room:.28,vibrato:false,breathMode:'split',pocket:'auto',voice:'sweet',keys:'numbers',bpm:90,beats:4,feel:'straight',click:.6};
 try{const s=JSON.parse(localStorage.getItem('harpbench')||'null'); if(s) Object.assign(state,s,{vibrato:false});}catch(e){}
 function save(){try{localStorage.setItem('harpbench',JSON.stringify(state))}catch(e){}}
 
@@ -423,27 +431,27 @@ function refreshAll(){
 const keysDown=new Set(), bendHeld=new Set();
 function currentKeyBend(){let b=0; for(const c of bendHeld) b=Math.max(b,BEND_CODES[c]); return b;}
 function holeForCode(code){
-  let i=BLOW_CODES.indexOf(code); if(i>=0&&i<L.N) return {hi:i,breath:'blow'};
-  i=DRAW_CODES.indexOf(code); if(i>=0&&i<L.N) return {hi:i,breath:'draw'};
+  const k=KL(); let i=k.blow.indexOf(code); if(i>=0&&i<L.N) return {hi:i,breath:'blow'};
+  i=k.draw.indexOf(code); if(i>=0&&i<L.N) return {hi:i,breath:'draw'};
   return null;
 }
 window.addEventListener('keydown',e=>{
-  const tg=e.target; if(tg&&(tg.tagName==='SELECT'||(tg.tagName==='INPUT'&&tg.type!=='range'))) return;
+  const tg=e.target; if(tg&&(tg.tagName==='SELECT'||(tg.tagName==='INPUT'&&(tg.type!=='range'||/^Arrow/.test(e.code))))) return;
   if(e.metaKey||e.ctrlKey||e.altKey) return;
   const code=e.code;
   if(code==='ShiftLeft'||code==='ShiftRight'){ if(!shiftHeld){shiftHeld=true; updateSlideBtn(); refreshAll();} return; }
   const hb=holeForCode(code);
-  if(hb||BEND_CODES[code]||code==='Space'||code==='KeyM'||/^Digit\d$/.test(code)||code==='Minus'||code==='Equal') e.preventDefault();
+  const kl=KL(), padIdx=kl.chords.indexOf(code), keyStep=code===kl.keyDown||code==='ArrowLeft'?-1:code===kl.keyUp||code==='ArrowRight'?1:0;
+  if(hb||BEND_CODES[code]||code==='Space'||code==='KeyM'||padIdx>=0||keyStep) e.preventDefault();
   if(e.repeat) return;
   if(hb){ initAudio(); keysDown.add(code); const id='k'+code;
     setTouch(id,specsFrom(hb.hi,hb.breath,0,currentKeyBend()),{mouth:true}); touches.get(id).meta={...hb,k:0}; return; }
   if(BEND_CODES[code]){bendHeld.add(code); refreshAll(); return;}
   if(code==='Space'){initAudio(); setVibrato(true); $('vibBtn').setAttribute('aria-pressed','true'); return;}
   if(code==='KeyM'){setCup(true); return;}
-  if(/^Digit\d$/.test(code)){const n=+code.slice(5); const idx=n===0?9:n-1; const pad=document.querySelector(`.pad[data-idx="${idx}"]`); if(pad) padDown(pad); return;}
+  if(padIdx>=0){const pad=document.querySelector(`.pad[data-idx="${padIdx}"]`); if(pad) padDown(pad); return;}
   if(code==='KeyB'){e.preventDefault(); metroToggle(); return;}
-  if(code==='Minus'){state.key=(state.key+11)%12; changed(); return;}
-  if(code==='Equal'){state.key=(state.key+1)%12; changed(); return;}
+  if(keyStep){state.key=(state.key+12+keyStep)%12; changed(); return;}
 });
 window.addEventListener('keyup',e=>{
   const code=e.code;
@@ -452,7 +460,7 @@ window.addEventListener('keyup',e=>{
   if(BEND_CODES[code]){bendHeld.delete(code); refreshAll(); return;}
   if(code==='Space'){setVibrato(state.vibrato); $('vibBtn').setAttribute('aria-pressed',state.vibrato); return;}
   if(code==='KeyM'){setCup(false); return;}
-  if(/^Digit\d$/.test(code)){const n=+code.slice(5); const idx=n===0?9:n-1; const pad=document.querySelector(`.pad[data-idx="${idx}"]`); if(pad) padUp(pad);}
+  const padIdx=KL().chords.indexOf(code); if(padIdx>=0){const pad=document.querySelector(`.pad[data-idx="${padIdx}"]`); if(pad) padUp(pad);}
 });
 window.addEventListener('blur',endAll);
 document.addEventListener('visibilitychange',()=>{if(document.hidden) endAll();});
@@ -500,7 +508,7 @@ function makePad(idx,rootPc,q,rn){
   const v=voiceChord(rootPc,QUAL[q].iv);
   const b=document.createElement('button'); b.className='pad'; b.dataset.idx=idx;
   const nm=chordName(rootPc,q);
-  b.innerHTML=`<span class="rn">${rn}</span><span class="nm">${nm}</span><span class="vt">${v.specs.map(s=>s.tab).join(' ')||'not available'}</span><span class="kind">${v.kind==='block'?'Block chord':v.kind==='roll'?'Rolled':'—'}</span><kbd>${idx===9?0:idx+1}</kbd>`;
+  b.innerHTML=`<span class="rn">${rn}</span><span class="nm">${nm}</span><span class="vt">${v.specs.map(s=>s.tab).join(' ')||'not available'}</span><span class="kind">${v.kind==='block'?'Block chord':v.kind==='roll'?'Rolled':'—'}</span><kbd>${codeLabel(KL().chords[idx])}</kbd>`;
   b.setAttribute('aria-label',`${nm} chord, ${v.kind==='block'?'block':'rolled'}: ${v.specs.map(s=>s.tab).join(' ')}`);
   padData[idx]={v,nm};
   b.addEventListener('pointerdown',e=>{e.preventDefault(); try{b.setPointerCapture(e.pointerId)}catch(_){} padDown(b);});
@@ -541,9 +549,15 @@ function playScale(){
 function renderKeymap(){
   const N=L.N; let h='<table class="km"><tr><th>Hole</th>';
   for(let i=0;i<N;i++) h+=`<td>${i+1}</td>`;
-  h+='</tr><tr><th>Blow</th>'; for(let i=0;i<N;i++) h+=`<td><kbd>${CODE_LABEL[BLOW_CODES[i]]||BLOW_CODES[i].slice(3)}</kbd></td>`;
-  h+='</tr><tr><th>Draw</th>'; for(let i=0;i<N;i++) h+=`<td><kbd>${CODE_LABEL[DRAW_CODES[i]]||DRAW_CODES[i].slice(3)}</kbd></td>`;
+  const k=KL();
+  h+='</tr><tr><th>Blow</th>'; for(let i=0;i<N;i++) h+=`<td><kbd>${codeLabel(k.blow[i])}</kbd></td>`;
+  h+='</tr><tr><th>Draw</th>'; for(let i=0;i<N;i++) h+=`<td><kbd>${codeLabel(k.draw[i])}</kbd></td>`;
   h+='</tr></table>'; $('keymap').innerHTML=h;
+  $('kbIntro').textContent=state.keys==='letters'?'Top letter row blows, home row draws. Hold modifiers while a note sounds.'
+    :'Number keys blow, the letter right below each number draws the same hole. Hold modifiers while a note sounds.';
+  $('modChords').innerHTML=`<kbd>${codeLabel(k.chords[0])}</kbd>–<kbd>${codeLabel(k.chords[9])}</kbd> chord pads`;
+  $('modKey').innerHTML=state.keys==='letters'?'<kbd>-</kbd> <kbd>=</kbd> or <kbd>←</kbd> <kbd>→</kbd> change harp key':'<kbd>←</kbd> <kbd>→</kbd> change harp key';
+  document.querySelectorAll('#kbSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===state.keys));
 }
 
 /* ---------- controls wiring ---------- */
@@ -560,6 +574,7 @@ document.querySelectorAll('#labelSeg button').forEach(b=>b.addEventListener('cli
 function setVoice(v){state.voice=v; save(); applyVoice(); renderControls(); if(pocketOpen()) renderPocketSheet(); playPreview();}
 function playPreview(){ if(touches.size) return; const hi=Math.min(3,L.N-1); setTouch('preview',[resolve(hi,'blow',0,false),resolve(hi+1,'blow',0,false),resolve(hi+2,'blow',0,false)],{indexKeys:true,stagger:.09,label:VOICES[state.voice].label}); setTimeout(()=>endTouch('preview'),650); }
 document.querySelectorAll('#voiceSeg button').forEach(b=>b.addEventListener('click',()=>{initAudio(); setVoice(b.dataset.v);}));
+document.querySelectorAll('#kbSeg button').forEach(b=>b.addEventListener('click',()=>{state.keys=b.dataset.k; b.blur(); changed();}));
 $('obBtn').addEventListener('click',()=>{state.overblows=!state.overblows; changed();});
 $('snapBtn').addEventListener('click',()=>{state.snap=!state.snap; save(); renderControls();});
 $('vibBtn').addEventListener('click',()=>{state.vibrato=!state.vibrato; initAudio(); setVibrato(state.vibrato); save(); renderControls();});

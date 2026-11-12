@@ -15,15 +15,17 @@ A playable harmonica that runs in the browser and installs as an app that works 
 
 | Action | Touch / mouse | Keyboard |
 | --- | --- | --- |
-| Blow | Upper half of a hole | `Q` `W` `E` `R` `T` `Y` `U` `I` `O` `P` `[` `]` |
-| Draw | Lower half of a hole | `A` `S` `D` `F` `G` `H` `J` `K` `L` `;` `'` `\` |
+| Blow | Upper half of a hole | Number keys `1`–`0` (holes 1–10), `-` `=` for chromatic holes 11–12 |
+| Draw | Lower half of a hole | The letter under each number: `Q`–`P`, then `[` `]` |
 | Bend | Drag away from the harp | Hold `Z` / `X` / `C` (½, 1, 1½ steps) |
 | Overblow / slide | Outer chip, or slide button | Hold `Shift` |
 | Vibrato | Vibrato button | Hold `Space` |
 | Wah | Cup hands button | Hold `M` |
-| Chords | Hold a chord pad | `1`–`9`, `0` |
+| Chords | Hold a chord pad | `A`–`;` |
 | Metronome | Start button | `B` |
-| Change key | Key strip | `-` / `=` |
+| Change key | Key strip | `←` / `→` |
+
+Prefer the older letters-only layout (`Q`–`P` blow, `A`–`;` draw, `1`–`0` chords)? Switch it under **Keyboard → Layout**.
 
 ## Install and play offline
 
