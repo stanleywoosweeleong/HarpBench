@@ -932,7 +932,8 @@ function songMark(scroll){
   const s=song.cur, nx=$('sbNext'); if(!s) return;
   const upcoming=[]; for(let i=song.pos;i<s.notes.length&&upcoming.length<5;i++) if(song.specs[i]) upcoming.push(song.specs[i]);
   if(song.mode==='practice'&&upcoming.length){
-    nx.innerHTML=`<span class="lbl">Play</span><span class="big">${upcoming[0].tab}</span><span class="msg">${nName(upcoming[0].midi)}${s.notes[song.pos][2]?' · “'+s.notes[song.pos][2]+'”':''}</span><span class="then">then ${upcoming.slice(1).map(x=>x.tab).join('  ')}</span>`;
+    const how=techHint(upcoming[0]);
+    nx.innerHTML=`<span class="lbl">Play</span><span class="big">${upcoming[0].tab}</span><span class="msg">${nName(upcoming[0].midi)}${s.notes[song.pos][2]?' · “'+s.notes[song.pos][2]+'”':''}</span><span class="then">then ${upcoming.slice(1).map(x=>x.tab).join('  ')}</span>${how?`<span class="how">${how}</span>`:''}`;
   } else if(song.mode==='done'){
     nx.innerHTML='<span class="msg">Well played. Press Practice to go again, or try a different key.</span>';
   } else if(song.mode==='listen'){
@@ -945,6 +946,15 @@ function songMark(scroll){
   for(const [k,el] of pkLbl) el.classList.toggle('target',!!tgt&&k===chipKey(tgt));
   pkHoles.forEach((el,i)=>el.classList.toggle('target',!!tgt&&i===tgt.hi));
   updatePocketSong();
+}
+function techHint(sp){
+  // How to play a bend, overblow or slide note, on screen and on the keyboard.
+  const k=KL(), hole=sp.hi+1, draw=sp.breath==='draw', key=codeLabel((draw?k.draw:k.blow)[sp.hi]);
+  if(sp.alt&&L.chrom) return `Slide in: hold the slide button (or Shift) and ${draw?'draw':'blow'} hole ${hole}. Keyboard: Shift + ${key}.`;
+  if(sp.alt) return `${draw?'Overdraw':'Overblow'}: tap the round chip ${draw?'below':'above'} hole ${hole}, or hold Shift and press ${key}.`;
+  if(sp.bend>0){const b=Math.round(sp.bend), amt=['','a half step','a whole step','a step and a half'][b];
+    return `Bend: ${draw?'draw':'blow'} hole ${hole} and bend it down ${amt}. Drag ${draw?'down':'up'} from the ${draw?'draw':'blow'} note, or hold ${['','Z','X','C'][b]} and press ${key}.`;}
+  return '';
 }
 function skipRests(){while(song.pos<song.cur.notes.length&&!song.specs[song.pos]) song.pos++;}
 function songStop(){clearTimeout(song.timer); if(song.mode==='listen') endTouch('song'); song.mode='idle'; updateSongButtons(); songMark(false);}

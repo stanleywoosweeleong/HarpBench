@@ -297,6 +297,7 @@ html.pocket-open, html.pocket-open body{overflow:hidden;height:100%;overscroll-b
 .sb-next{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;min-height:34px}
 .sb-next .big{font-family:var(--f-mono);font-weight:600;font-size:26px;color:var(--brass)}
 .sb-next .then{font-family:var(--f-mono);font-size:14px;color:var(--muted)}
+.sb-next .how{flex-basis:100%;font-size:12.5px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
 .sb-next .msg{font-size:13px;color:var(--muted)}
 .score{display:flex;flex-direction:column;gap:12px;max-height:340px;overflow-y:auto;padding:4px 2px;border-top:1px solid var(--line);padding-top:12px;scroll-behavior:smooth}
 .phrase{display:flex;flex-wrap:wrap;gap:6px 0}
