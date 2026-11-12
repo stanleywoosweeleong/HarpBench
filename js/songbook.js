@@ -23,9 +23,10 @@ function noteLabel(n,spec){
   return state.notation==='numbers'?jp(n[0]+song.shift):nName(spec?spec.midi:L.base+state.rootOff+n[0]);
 }
 function renderSongList(){
-  const list=$('sbList'); if(list.children.length) {[...list.children].forEach(b=>b.setAttribute('aria-current',b.dataset.id===state.song)); return;}
+  const list=$('sbList'); if(list.children.length) {[...list.children].forEach(b=>{b.setAttribute('aria-current',b.dataset.id===state.song);
+    const pr=state.progress[b.dataset.id]; b.querySelector('.sb-best').textContent=pr?`Best ${pr.best}% · played ${pr.plays}×`:'';}); return;}
   SONGS.forEach(s=>{const b=document.createElement('button'); b.className='sb-item'; b.dataset.id=s.id; b.setAttribute('role','listitem');
-    b.innerHTML=`<b>${s.title}</b><span>${s.first}</span><em class="sb-diff"></em>`;
+    b.innerHTML=`<b>${s.title}</b><span>${s.first}</span><em class="sb-diff"></em><em class="sb-best"></em>`;
     b.addEventListener('click',()=>selectSong(s.id));
     list.appendChild(b);});
   renderSongList();
@@ -33,7 +34,8 @@ function renderSongList(){
 function renderSongbook(){
   if(!L) return;
   const s=songById(state.song); song.cur=s; state.song=s.id;
-  const m=mapSong(s); song.specs=m.specs; song.shift=m.o;
+  const m=mapSong(s); song.specs=m.specs; song.shift=m.o; song.tonic=m.tonic;
+  if(state.verse>=s.verses.length) state.verse=0;
   if(song.pos>=s.notes.length) song.pos=0;
   renderSongList();
   [...$('sbList').children].forEach(b=>{const bp=bestPosition(songById(b.dataset.id)), e=b.querySelector('.sb-diff');
@@ -57,14 +59,19 @@ function renderSongbook(){
   s.notes.forEach((n,i)=>{
     const spec=m.specs[i], c=document.createElement('button'); c.className='nc'+(n[0]==null?' rest':'')+(n[3].includes('b')?' bar':''); c.dataset.i=i;
     c.style.setProperty('--d',Math.min(3,n[1]));
-    c.innerHTML=`<span class="t">${n[0]==null?'rest':spec?spec.tab:'?'}</span><span class="n">${noteLabel(n,spec)}</span><span class="s">${n[2]||''}</span>`;
+    c.innerHTML=`<span class="t">${n[0]==null?'rest':spec?spec.tab:'?'}</span><span class="n">${noteLabel(n,spec)}</span><span class="s">${sylAt(s,i)}</span>`;
     c.title=n[0]==null?'Rest':`${spec?spec.tab:'?'} · ${spec?nName(spec.midi)+nOct(spec.midi):''}`;
     c.addEventListener('click',()=>{songStop(); song.pos=i; songMark(); if(spec) {setTouch('song',[spec],{mouth:true}); setTimeout(()=>endTouch('song'),Math.min(900,songSecs(n)*1000));}});
     ph.appendChild(c);
     if(n[3].includes('l')||i===s.notes.length-1){sc.appendChild(ph); ph=document.createElement('div'); ph.className='phrase';}
   });
+  const vs=$('sbVerse'); vs.innerHTML=''; s.verses.forEach((v,i)=>vs.add(new Option('Verse '+(i+1),i))); vs.value=state.verse; vs.disabled=s.verses.length<2;
+  for(const [id,key] of [['sbClick','songClick'],['sbCount','countIn'],['sbHarm','backing'],['sbGuide','guide'],['sbLoop','loopLine']]) $(id).setAttribute('aria-pressed',!!state[key]);
+  $('sbHarm').disabled=!s.parts.length; $('sbHarm').title=s.parts.length?'Alto, tenor and bass from the hymnal':'This hymn has no harmony parts';
+  $('sbBackVol').value=state.backVol;
   songMark(); updateSongButtons();
 }
+function sylAt(s,i){ const v=s.verses[state.verse]; return (v&&v[i]!=null?v[i]:s.notes[i][2])||''; }
 const songSecs=n=>n[1]*60/(song.cur.bpm*state.songRate);
 function songMark(scroll){
   const cells=$('sbScore').children; let k=0;
@@ -78,12 +85,19 @@ function songMark(scroll){
     const how=techHint(upcoming[0]);
     nx.innerHTML=`<span class="lbl">Play</span><span class="big">${upcoming[0].tab}</span><span class="msg">${nName(upcoming[0].midi)}${s.notes[song.pos][2]?' · “'+s.notes[song.pos][2]+'”':''}</span><span class="then">then ${upcoming.slice(1).map(x=>x.tab).join('  ')}</span>${how?`<span class="how">${how}</span>`:''}`;
   } else if(song.mode==='done'){
-    nx.innerHTML='<span class="msg">Well played. Press Practice to go again, or try a different key.</span>';
+    nx.innerHTML='<span class="msg">Well played. Press Practice to go again, or try Play along to keep time.</span>';
   } else if(song.mode==='listen'){
     nx.innerHTML=`<span class="msg">Listening… watch the lit holes on the harp.</span>`;
-  } else nx.innerHTML=`<span class="msg">Press Listen to hear it, or Practice to play it yourself one note at a time. Tap any note in the score to hear it.</span>`;
+  } else if(song.mode==='along'){
+    const t=tpTally(), sp=song.specs[song.pos];
+    nx.innerHTML=`<span class="lbl">Now</span><span class="big">${sp?sp.tab:'–'}</span><span class="then">${upcoming.slice(1).map(x=>x.tab).join('  ')}</span>`
+      +`<span class="tally"><b class="good">${t.good}</b> on time · <b class="off">${t.off}</b> early or late · <b class="bad">${t.miss}</b> missed${tp.loop?' · looping this line':''}</span>`;
+  } else if(song.mode==='result'){
+    const r=song.result, pr=state.progress[s.id];
+    nx.innerHTML=`<span class="lbl">Score</span><span class="big">${r.score}%</span><span class="tally"><b class="good">${r.good}</b> on time · <b class="off">${r.off}</b> early or late · <b class="bad">${r.miss}</b> missed${pr&&pr.best>r.score?` · your best is ${pr.best}%`:pr&&pr.plays>1?' · new best':''}</span>`;
+  } else nx.innerHTML=`<span class="msg">Listen to hear it with the hymnal harmony, Play along to play it in time with a score, or Practice to go one note at a time. Tap any note to hear it.</span>`;
   // target highlights on the harp
-  const tgt=song.mode==='practice'?song.specs[song.pos]:null;
+  const tgt=song.mode==='practice'||song.mode==='along'?song.specs[song.pos]:null;
   for(const [k,el] of chipEls) el.classList.toggle('target',!!tgt&&k===chipKey(tgt));
   holeEls.forEach((el,i)=>el.classList.toggle('target',!!tgt&&i===tgt.hi));
   for(const [k,el] of pkLbl) el.classList.toggle('target',!!tgt&&k===chipKey(tgt));
@@ -100,29 +114,26 @@ function techHint(sp){
   return '';
 }
 function skipRests(){while(song.pos<song.cur.notes.length&&!song.specs[song.pos]) song.pos++;}
-function songStop(){clearTimeout(song.timer); if(song.mode==='listen') endTouch('song'); song.mode='idle'; updateSongButtons(); songMark(false);}
+function songStop(){clearTimeout(song.timer); if(tp.on) tpStop(true); song.mode='idle'; updateSongButtons(); songMark(false);}
 function updateSongButtons(){$('sbListen').setAttribute('aria-pressed',song.mode==='listen'); $('sbListen').textContent=song.mode==='listen'?'Stop':'Listen';
+  $('sbAlong').setAttribute('aria-pressed',song.mode==='along'); $('sbAlong').textContent=song.mode==='along'?'Stop':'Play along';
   $('sbPractice').setAttribute('aria-pressed',song.mode==='practice'); $('sbPractice').textContent=song.mode==='practice'?'Stop practice':'Practice';}
-function songListen(){
-  if(song.mode==='listen'){songStop(); return;}
-  songStop(); initAudio(); if(song.pos>=song.cur.notes.length-1) song.pos=0; song.mode='listen'; updateSongButtons();
-  const step=()=>{
-    if(song.mode!=='listen') return;
-    if(song.pos>=song.cur.notes.length){endTouch('song'); song.mode='idle'; song.pos=0; updateSongButtons(); songMark(false); return;}
-    const n=song.cur.notes[song.pos], sp=song.specs[song.pos], secs=songSecs(n);
-    songMark();
-    if(sp){ endTouch('song'); setTouch('song',[sp],{mouth:true}); song.timer=setTimeout(()=>{endTouch('song'); song.pos++; song.timer=setTimeout(step,secs*80);},secs*920); }
-    else { endTouch('song'); song.pos++; song.timer=setTimeout(step,secs*1000); }
-  };
-  step();
-}
+function songListen(){ if(song.mode==='listen'){songStop(); return;} songStop(); tpStart('listen'); }
+function songAlong(){ if(song.mode==='along'){songStop(); return;} songStop(); tpStart('along'); }
 function songPractice(){
   if(song.mode==='practice'){songStop(); return;}
   songStop(); if(song.pos>=song.cur.notes.length-1) song.pos=0; skipRests(); song.mode='practice'; updateSongButtons(); songMark();
 }
 function songHeard(id,t,specs){
   // called from setTouch: advance when the player sounds the target pitch (a fresh note or a bend arriving on it)
-  if(song.mode!=='practice'||id==='song'||id==='preview'||id==='demo') return;
+  if(id==='song'||id==='preview'||id==='demo') return;
+  if(song.mode==='along'){
+    // record each newly sounding pitch (a new note, or a bend arriving) for timing grades
+    const now=new Set(specs.map(x=>Math.round(x.midi))), prev=t.prevPitches||new Set();
+    for(const m of now) if(!prev.has(m)) tpNoteOn(m);
+    t.prevPitches=now; return;
+  }
+  if(song.mode!=='practice') return;
   const tgt=song.specs[song.pos]; if(!tgt) return;
   const hit=specs.some(s=>Math.round(s.midi)===Math.round(tgt.midi));
   if(hit&&!t.hitTarget){ song.pos++; skipRests(); if(song.pos>=song.cur.notes.length){song.mode='done'; updateSongButtons();} songMark(); }
@@ -133,12 +144,17 @@ function updatePocketSong(){
   const on=song.mode!=='idle'; p.classList.toggle('has-song',on); $('pkSongStop').hidden=!on;
   if(!on) return;
   const up=[]; for(let i=song.pos;i<song.cur.notes.length&&up.length<5;i++) if(song.specs[i]) up.push(song.specs[i]);
-  const syl=song.cur.notes[song.pos]?.[2]||'';
-  $('pkSong').innerHTML=song.mode==='done'?'Well played!':`<span>${song.mode==='listen'?'Listen':'Play'}</span><b>${up[0]?up[0].tab:''}</b><i>${up.slice(1).map(x=>x.tab).join(' ')}</i><span>${syl?'“'+syl+'”':''}</span>`;
+  const syl=song.pos<song.cur.notes.length?sylAt(song.cur,song.pos):'';
+  $('pkSong').innerHTML=song.mode==='done'?'Well played!':song.mode==='result'?`Score ${song.result.score}%`:`<span>${song.mode==='listen'?'Listen':song.mode==='along'?'Now':'Play'}</span><b>${up[0]?up[0].tab:''}</b><i>${up.slice(1).map(x=>x.tab).join(' ')}</i><span>${syl?'“'+syl+'”':''}</span>`;
 }
 $('sbListen').addEventListener('click',songListen);
+$('sbAlong').addEventListener('click',songAlong);
+for(const [id,key] of [['sbClick','songClick'],['sbCount','countIn'],['sbHarm','backing'],['sbGuide','guide'],['sbLoop','loopLine']])
+  $(id).addEventListener('click',()=>{state[key]=!state[key]; save(); $(id).setAttribute('aria-pressed',state[key]);});
+$('sbBackVol').addEventListener('input',e=>{state.backVol=+e.target.value; save();});
+$('sbVerse').addEventListener('change',e=>{state.verse=+e.target.value; save(); renderSongbook();});
 $('sbPractice').addEventListener('click',songPractice);
-$('sbRestart').addEventListener('click',()=>{const m=song.mode; songStop(); song.pos=0; if(m==='practice') songPractice(); else if(m==='listen') songListen(); else songMark();});
+$('sbRestart').addEventListener('click',()=>{const m=song.mode; songStop(); song.pos=0; if(m==='practice') songPractice(); else if(m==='listen') tpStart('listen'); else if(m==='along') tpStart('along'); else songMark();});
 [...$('sbSpeed').children].forEach(b=>b.addEventListener('click',()=>{state.songRate=+b.dataset.r; save(); renderSongbook();}));
 [...$('sbNotation').children].forEach(b=>b.addEventListener('click',()=>{state.notation=b.dataset.n; save(); renderSongbook();}));
 $('pkSongStop').addEventListener('click',()=>songStop());

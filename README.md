@@ -36,6 +36,14 @@ The songbook follows **Play in**. Choosing a hymn switches Play in to the easies
 
 Melodies and first-verse lyrics are public domain and were transcribed from the [Open Hymnal Project](http://openhymnal.org) ABC files (melody line only). The data lives in `songs.js`.
 
+### Listen, Play along, Practice
+
+- **Listen** plays the melody on the harmonica with the alto, tenor and bass parts from the hymnal underneath, and lights each hole as it sounds.
+- **Play along** keeps time while you play: each note is marked on time, early or late, or missed, and you get a score at the end. Your best score for each hymn is saved.
+- **Practice** waits for each note, so you can learn the holes before worrying about rhythm.
+
+Listen and Play along run on the audio clock, so the melody, the metronome, the count-in bar and the harmony stay locked together. The metronome follows the hymn: its tempo (times the speed setting), its beats per bar (6/8 and 9/8 are counted in dotted beats), and its pickup notes, so beat 1 lands on the first full bar. **Loop this line** repeats the line that holds the selected note; tap a note in the score to choose where to start. **Guide melody** plays the tune quietly while you play along. Every verse is included.
+
 ## Install and play offline
 
 The app is plain static files with a service worker, so any static host works. With GitHub Pages:

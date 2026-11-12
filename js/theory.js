@@ -79,3 +79,40 @@ function needsOverblows(s,off){
   return without>0&&withOb<without;
 }
 function jp(rel){const o=Math.floor(rel/12), p=((rel%12)+12)%12; return JIANPU[p]+(o>0?'̇'.repeat(o):o<0?'̣'.repeat(-o):'');}
+
+/* ---------- song timing (all times in quarter notes from the first note) ---------- */
+function meterInfo(meter){
+  // beat = length of one counted beat; 6/8, 9/8 and 12/8 are counted in dotted quarters
+  const [num,den]=String(meter||'4/4').split('/').map(Number);
+  const unit=4/(den||4);
+  if(den===8&&num%3===0&&num>3) return {beat:1.5,perBar:num/3,barLen:num*unit};
+  return {beat:unit,perBar:num||4,barLen:(num||4)*unit};
+}
+function songGrid(s){
+  // Note start times plus the pickup (the notes before the first bar line), so beat 1 lands on the first full bar.
+  const mi=meterInfo(s.meter), starts=[]; let t=0, pickup=null;
+  for(const n of s.notes){starts.push(t); t+=n[1]; if(pickup==null&&n[3].includes('b')) pickup=t;}
+  if(pickup==null||pickup>=mi.barLen-1e-9) pickup=0;
+  return {beat:mi.beat,perBar:mi.perBar,barLen:mi.barLen,pickup,starts,total:t};
+}
+function lineRanges(s){
+  // [first, last] note index of each printed line
+  const r=[]; let i0=0;
+  s.notes.forEach((n,i)=>{if(n[3].includes('l')||i===s.notes.length-1){r.push([i0,i]); i0=i+1;}});
+  return r;
+}
+function beatsBetween(g,a,b){
+  // Metronome beats in [a, b): time, whether it is beat 1, and the beat number within the bar (0-based)
+  const out=[];
+  for(let k=Math.ceil((a-g.pickup)/g.beat-1e-9);;k++){
+    const t=g.pickup+k*g.beat; if(t>=b-1e-9) break;
+    const inBar=((k%g.perBar)+g.perBar)%g.perBar;
+    out.push({t,down:inBar===0,beatInBar:inBar});
+  }
+  return out;
+}
+function countInStart(g,a){
+  // One full bar of count-in before the bar that contains song time a
+  const k=Math.floor((a-g.pickup)/g.barLen+1e-9);
+  return g.pickup+k*g.barLen-g.barLen;
+}

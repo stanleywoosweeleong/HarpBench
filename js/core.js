@@ -27,7 +27,7 @@ const codeLabel=c=>CODE_LABEL[c]||c.replace(/^(Key|Digit)/,'');
 const BEND_CODES={KeyZ:1,KeyX:2,KeyC:3};
 
 const state={type:'diatonic',key:0,rootOff:7,scale:'blues',mouth:'1',labels:'notes',overblows:false,snap:true,
-  vol:.72,tone:.5,room:.28,vibrato:false,breathMode:'split',pocket:'auto',voice:'sweet',keys:'numbers',song:'amazing',songRate:1,notation:'letters',bpm:90,beats:4,feel:'straight',click:.6};
+  vol:.72,tone:.5,room:.28,vibrato:false,breathMode:'split',pocket:'auto',voice:'sweet',keys:'numbers',song:'amazing',songRate:1,notation:'letters',verse:0,songClick:true,countIn:true,backing:true,guide:false,loopLine:false,backVol:.6,progress:{},bpm:90,beats:4,feel:'straight',click:.6};
 try{const s=JSON.parse(localStorage.getItem('harpbench')||'null'); if(s) Object.assign(state,s,{vibrato:false});}catch(e){}
 function save(){try{localStorage.setItem('harpbench',JSON.stringify(state))}catch(e){}}
 
@@ -70,7 +70,7 @@ function resolve(hi,breath,bend,alt){
 function chipKey(s){return s.hi+'|'+s.breath+'|'+Math.round(s.bend)+'|'+(s.alt?1:0)}
 
 /* ---------- audio ---------- */
-let ctx=null,bus,hand,handGain,wetGain,vibAmp,vibPitch,drift,noiseBuf,out,sat,eqHi,eqShelf,conv;
+let ctx=null,bus,hand,handGain,wetGain,vibAmp,vibPitch,drift,noiseBuf,out,sat,eqHi,eqShelf,conv,backBus;
 /* Voice presets. Each reed is one oscillator: det = tuning offset in cents, pan = stereo position, g = level.
    exp = harmonic roll-off (more negative = rounder), comb = reed-slot coloration, drive = saturation,
    bright = filter opening, breath = air noise, hi = presence EQ in dB. */
@@ -136,6 +136,8 @@ function initAudio(){
   out=ctx.createGain(); out.gain.value=.9;
   bus.connect(hp).connect(p0).connect(p1).connect(p2).connect(hs).connect(sat).connect(hand).connect(handGain);
   handGain.connect(comp); handGain.connect(conv).connect(wetGain).connect(comp); comp.connect(out).connect(ctx.destination);
+  // backing harmony skips the harmonica's tone shaping but shares the room and the limiter
+  backBus=ctx.createGain(); backBus.gain.value=1; backBus.connect(comp); backBus.connect(conv);
   const lfo=ctx.createOscillator(); lfo.frequency.value=5.3;
   vibAmp=ctx.createGain(); vibAmp.gain.value=0; vibPitch=ctx.createGain(); vibPitch.gain.value=0;
   lfo.connect(vibAmp); lfo.connect(vibPitch); lfo.start();
@@ -181,9 +183,10 @@ function startVoice(s,count,delay,legato){
       env.gain.setTargetAtTime(levelFor(s2,v.count),Math.max(now,t0)+.001,.04);
       ng.gain.setTargetAtTime(levelFor(s2,v.count)*air*(.05+.06*s2.bend),Math.max(now,t0)+.02,.05);
       v.s=s2;},
-    stop(){const now=ctx.currentTime; hold(env.gain,now); env.gain.setTargetAtTime(0,now,.038);
+    stop(at){const now=Math.max(ctx.currentTime,at||0); hold(env.gain,now); env.gain.setTargetAtTime(0,now,.038);
       hold(ng.gain,now); ng.gain.setTargetAtTime(0,now,.025);
-      oscs.forEach(o=>o.stop(now+.45)); ns.stop(now+.45);
+      // a note may be stopped twice (scheduled release, then the player stops the song); some browsers reject a second stop()
+      oscs.forEach(o=>{try{o.stop(now+.45)}catch(e){}}); try{ns.stop(now+.45)}catch(e){}
       oscs[0].onended=()=>{try{vibAmp.disconnect(trem.gain)}catch(e){} oscs.forEach(o=>{try{vibPitch.disconnect(o.detune)}catch(e){} try{drift.disconnect(o.detune)}catch(e){}});};}
   };
   return v;

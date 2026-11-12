@@ -131,12 +131,22 @@
         <div class="ctl"><span class="lbl">Position · same as Play in</span><div class="seg sb-pos" id="sbPos"></div></div>
         <div class="sb-ctl">
           <button class="btn" id="sbListen" aria-pressed="false">Listen</button>
+          <button class="btn" id="sbAlong" aria-pressed="false">Play along</button>
           <button class="btn" id="sbPractice" aria-pressed="false">Practice</button>
           <button class="btn" id="sbRestart">Start over</button>
           <div class="ctl"><span class="lbl">Speed</span><div class="seg" id="sbSpeed">
             <button data-r="0.5">50%</button><button data-r="0.75">75%</button><button data-r="1">100%</button></div></div>
           <div class="ctl"><span class="lbl">Notes as</span><div class="seg" id="sbNotation">
             <button data-n="letters">C D E</button><button data-n="numbers">1 2 3</button></div></div>
+          <div class="ctl"><label class="lbl" for="sbVerse">Lyrics</label><select id="sbVerse"></select></div>
+        </div>
+        <div class="sb-ctl sb-opts">
+          <button class="btn" id="sbClick" aria-pressed="true">Metronome click</button>
+          <button class="btn" id="sbCount" aria-pressed="true">Count-in bar</button>
+          <button class="btn" id="sbHarm" aria-pressed="true">Hymnal harmony</button>
+          <button class="btn" id="sbGuide" aria-pressed="false" title="Quietly play the melody while you play along">Guide melody</button>
+          <button class="btn" id="sbLoop" aria-pressed="false" title="Repeat the line with the selected note">Loop this line</button>
+          <label class="range" for="sbBackVol"><span class="lbl">Harmony</span><input id="sbBackVol" type="range" min="0" max="1" step="0.01" value="0.6"></label>
         </div>
         <div class="sb-next" id="sbNext" aria-live="polite"></div>
         <div class="score" id="sbScore"></div>
@@ -228,6 +238,7 @@
 <script src="js/pocket.js"></script>
 <script src="js/metronome.js"></script>
 <script src="js/songbook.js"></script>
+<script src="js/transport.js"></script>
 <script src="js/main.js"></script>
 <script src="pwa.js"></script>
 </body>

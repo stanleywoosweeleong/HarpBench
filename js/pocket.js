@@ -79,6 +79,7 @@ function renderPocketSheet(){
    sel.addEventListener('change',e=>selectSong(e.target.value)); w.appendChild(sel); c.appendChild(w);
    const mk=(t,f)=>{const b=document.createElement('button'); b.className='btn'; b.textContent=t; b.addEventListener('click',f); c.appendChild(b);};
    mk('Listen',()=>{endAll(); $('pkSheet').hidden=true; if(song.mode!=='listen') songListen();});
+   mk('Play along',()=>{endAll(); $('pkSheet').hidden=true; if(song.mode!=='along') songAlong();});
    mk('Practice',()=>{endAll(); $('pkSheet').hidden=true; if(song.mode!=='practice') songPractice();});
    mk('Stop song',()=>songStop());}
   const pads=$('pkPads'); pads.innerHTML='';
