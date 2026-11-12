@@ -7,7 +7,13 @@ let pkLbl=new Map(), pkHalves=[], pkHoles=[];
 function pocketOpen(){return !$('pocket').hidden}
 // Harp Bench is an instrument, so its scale is fixed at 100%. iOS can still zoom (a tapped field, rotating, two thumbs
 // read as a pinch) and then keeps that zoom; rewriting the viewport with maximum-scale=1 snaps it back to 100%.
+let zoomResetAt=0;
 function resetZoom(){
+  // at most once a second, and never while a finger is down: each reset re-lays out the page, and repeating it
+  // (iOS can keep reporting a zoom) would stutter the app and could drop the "finger lifted" event of a note
+  const now=performance.now();
+  if(now-zoomResetAt<1000||touches.size){ clearTimeout(resetZoom.t); resetZoom.t=setTimeout(resetZoom,1000); return; }
+  zoomResetAt=now;
   const m=document.querySelector('meta[name="viewport"]'); if(!m) return;
   const want='width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover';
   m.setAttribute('content',want.replace('maximum-scale=1','maximum-scale=1.01')); // a real change forces iOS to re-apply it

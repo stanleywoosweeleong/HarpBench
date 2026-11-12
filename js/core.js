@@ -123,6 +123,7 @@ function initAudio(){
   const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
   try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
   ctx=new AC({latencyHint:'interactive'});
+  ctx.addEventListener('statechange',()=>{ if(ctx.state!=='running'&&touches.size) endAll(); });
   // With the 'playback' audio session, iPhone shows Harp Bench in Now Playing (the Dynamic Island) while sound is on.
   // Give it a proper name and icon, and let its pause button stop everything.
   if('mediaSession' in navigator&&typeof MediaMetadata==='function'){ try{

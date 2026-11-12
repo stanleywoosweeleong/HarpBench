@@ -218,6 +218,7 @@ window.addEventListener('keydown',e=>{
 window.addEventListener('keyup',e=>{
   const code=e.code;
   if(code==='ShiftLeft'||code==='ShiftRight'){shiftHeld=false; updateSlideBtn(); refreshAll(); return;}
+  if(/^(Meta|Control|OS)/.test(code)){ for(const c of [...keysDown]){ keysDown.delete(c); endTouch('k'+c); } return; }
   if(keysDown.has(code)){keysDown.delete(code); endTouch('k'+code); return;}
   if(BEND_CODES[code]){bendHeld.delete(code); refreshAll(); return;}
   if(code==='Space'){setVibrato(state.vibrato); $('vibBtn').setAttribute('aria-pressed',state.vibrato); return;}
@@ -225,6 +226,24 @@ window.addEventListener('keyup',e=>{
   const padIdx=KL().chords.indexOf(code); if(padIdx>=0){const pad=document.querySelector(`.pad[data-idx="${padIdx}"]`); if(pad) padUp(pad);}
 });
 window.addEventListener('blur',endAll);
+
+/* ---------- safety nets against stuck notes ---------- */
+// Notes played by finger or mouse end when that pointer lifts, wherever it lifts (even if the element lost the event).
+function releasePointer(id){ endTouch('p'+id); endTouch('q'+id); }
+['pointerup','pointercancel'].forEach(t=>window.addEventListener(t,e=>{
+  releasePointer(e.pointerId);
+  if(e.pointerType==='mouse'&&!e.buttons) releaseHeldPads();
+},true));
+function releaseHeldPads(){
+  document.querySelectorAll('.pad.down').forEach(p=>p.classList.remove('down'));
+  for(const id of [...touches.keys()]) if(/^(c|pc)\d/.test(id)) endTouch(id);
+}
+// When no finger is on the screen at all, nothing played by touch may keep sounding.
+['touchend','touchcancel'].forEach(t=>document.addEventListener(t,e=>{
+  if(e.touches.length) return;
+  for(const id of [...touches.keys()]) if(/^(p|q|c|pc)\d/.test(id)) endTouch(id);
+  document.querySelectorAll('.pad.down').forEach(p=>p.classList.remove('down'));
+},{passive:true,capture:true}));
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) return; endAll();
   // browsers slow timers in hidden pages, which would make songs stutter; the free metronome keeps a longer lookahead instead
   if(typeof tp!=='undefined'&&tp.on) songStop(); });
