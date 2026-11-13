@@ -130,3 +130,18 @@ function nearestSample(keys,midi,maxGap){
   for(const k of keys){ const d=Math.abs(k-midi); if(d<=maxGap&&(best==null||d<Math.abs(best-midi))) best=k; }
   return best;
 }
+
+/* ---------- recording: 16-bit PCM WAV ---------- */
+function floatToInt16(x){ x=x>1?1:x<-1?-1:(x||0); return x<0?Math.round(x*32768):Math.round(x*32767); }
+function encodeWav(chunks,sampleRate,channels){
+  // chunks: Int16Array pieces of interleaved samples. Returns the bytes of a standard WAV file.
+  let n=0; for(const c of chunks) n+=c.length;
+  const bytes=new Uint8Array(44+n*2), v=new DataView(bytes.buffer);
+  const str=(o,s)=>{for(let i=0;i<s.length;i++) bytes[o+i]=s.charCodeAt(i);};
+  str(0,'RIFF'); v.setUint32(4,36+n*2,true); str(8,'WAVE');
+  str(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,channels,true);
+  v.setUint32(24,sampleRate,true); v.setUint32(28,sampleRate*channels*2,true); v.setUint16(32,channels*2,true); v.setUint16(34,16,true);
+  str(36,'data'); v.setUint32(40,n*2,true);
+  let o=44; for(const c of chunks) for(let i=0;i<c.length;i++,o+=2) v.setInt16(o,c[i],true);
+  return bytes;
+}

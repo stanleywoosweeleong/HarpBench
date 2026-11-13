@@ -222,6 +222,24 @@ const T={
 'start / stop the metronome':['开始 / 停止节拍器','mula / henti metronom'],
 "Turn off your phone's silent switch if you hear nothing. Multi-touch works: hold the slide button with one finger and play with another.":
  ['如果没有声音，请关闭手机的静音开关。支持多点触控：一指按住变音键，另一指吹奏。','Matikan suis senyap telefon jika tiada bunyi. Sentuhan berbilang berfungsi: tahan butang slaid dengan satu jari dan main dengan jari lain.'],
+// recording
+'Record':['录音','Rakam'],
+'Recordings':['录音','Rakaman'],
+'Record what you play, with the hymnal harmony if a song is playing, then share or save it as an audio file (WAV) to Files, GarageBand, AUM, AudioShare or any app that opens audio.':
+ ['录下你的演奏（播放歌曲时连同诗本和声），再以音频文件（WAV）分享或保存到“文件”、GarageBand、AUM、AudioShare 或任何能打开音频的应用。','Rakam apa yang anda mainkan, bersama harmoni himne jika lagu sedang dimainkan, kemudian kongsi atau simpan sebagai fail audio (WAV) ke Fail, GarageBand, AUM, AudioShare atau mana-mana aplikasi yang membuka audio.'],
+'Metronome clicks in the recording':['录入节拍器声','Klik metronom dalam rakaman'],
+'Microphone in the recording':['录入麦克风','Mikrofon dalam rakaman'],
+'When the microphone is on, your real harmonica is recorded too':['麦克风开启时，也会录下你的真口琴','Apabila mikrofon hidup, harmonika sebenar anda turut dirakam'],
+'No recordings yet. Press Record, play, then press Stop recording. Takes are kept until you close the app, so share or save the ones you want.':
+ ['还没有录音。按“录音”，吹奏，再按“停止录音”。录音会保留到你关闭应用为止，请把想保留的分享或保存。','Belum ada rakaman. Tekan Rakam, main, kemudian tekan Hentikan rakaman. Rakaman disimpan sehingga anda menutup aplikasi, jadi kongsi atau simpan yang anda mahu.'],
+'Recording ready':['录音完成','Rakaman sedia'],
+'Share or save':['分享或保存','Kongsi atau simpan'],
+'Delete':['删除','Padam'],
+'Close':['关闭','Tutup'],
+'On iPhone, Share opens the share sheet: choose Save to Files, AirDrop, or an app such as GarageBand, AUM or AudioShare.':
+ ['在 iPhone 上，“分享”会打开共享表单：可选“存储到文件”、隔空投送，或 GarageBand、AUM、AudioShare 等应用。','Pada iPhone, Kongsi membuka helaian kongsi: pilih Simpan ke Fail, AirDrop, atau aplikasi seperti GarageBand, AUM atau AudioShare.'],
+'Recording stopped at the 10-minute limit.':['已达 10 分钟上限，录音停止。','Rakaman berhenti pada had 10 minit.'],
+'Recording stopped because the app went to the background.':['应用转到后台，录音已停止。','Rakaman dihentikan kerana aplikasi ke latar belakang.'],
 // metronome
 'Metronome':['节拍器','Metronom'],
 'Start':['开始','Mula'],

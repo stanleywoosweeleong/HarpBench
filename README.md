@@ -44,6 +44,10 @@ Melodies and first-verse lyrics are public domain and were transcribed from the 
 
 Listen and Play along run on the audio clock, so the melody, the metronome, the count-in bar and the harmony stay locked together. The metronome follows the hymn: its tempo (times the speed setting), its beats per bar (6/8 and 9/8 are counted in dotted beats), and its pickup notes, so beat 1 lands on the first full bar. **Loop this line** repeats the line that holds the selected note; tap a note in the score to choose where to start. **Guide melody** plays the tune quietly while you play along. Every verse is included.
 
+### Recording
+
+**Record** (in the harmonica panel, or the ● button in phone mode) captures what you play, with the hymnal harmony if a song is playing. Metronome clicks and the microphone (your real harmonica) can be included or left out. When you stop, the take opens in a dialog: play it back, then **Share or save** it as a 16-bit WAV file. On iPhone that opens the share sheet (Save to Files, AirDrop, GarageBand, AUM, AudioShare…); on a computer it downloads. The last five takes stay in memory until the app is closed. This is the way to bring Harp Bench into Audiobus-style workflows: iOS does not let web apps join Audiobus or Inter-App Audio directly, which would need a native app (an AUv3 instrument).
+
 ### Microphone
 
 Press **Use microphone** and play your real harmonica. The tuner shows the note, how many cents sharp or flat it is (handy for checking bends), and which hole it is on the selected harp. While the microphone is on, **Practice** and **Play along** listen to your harmonica instead of waiting for taps. Use headphones when Listen or the harmony is playing, or the microphone hears the app. The microphone works in the installed app and on the GitHub Pages address; some embedded views do not allow it.
@@ -105,6 +109,7 @@ Then open <http://localhost:8000>. Service workers need `http://localhost` or HT
 - `js/abc.js`: ABC notation importer
 - `js/pitch.js`, `js/mic.js`: microphone pitch detection and tuner
 - `js/sampler.js`: My harp recorder and the voice that plays your recordings
+- `js/recorder.js`: recording takes and sharing them as WAV files
 - `js/transport.js`: Listen and Play along on the audio clock (metronome, count-in, harmony, grading)
 - `js/i18n.js`: languages (English, 中文, Bahasa Melayu)
 - `js/main.js`: start-up

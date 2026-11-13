@@ -11,7 +11,7 @@ function clickAt(t,kind){
   f.type='bandpass'; f.frequency.value=kind==='accent'?2200:1500; f.Q.value=1.4;
   const v=state.click*(kind==='accent'?.9:kind==='beat'?.6:.32);
   g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v,t+.001); g.gain.exponentialRampToValueAtTime(.0005,t+(kind==='sub'?.03:.05));
-  o.connect(f).connect(g).connect(ctx.destination); o.start(t); o.stop(t+.08);
+  o.connect(f).connect(g).connect(clickBus); o.start(t); o.stop(t+.08);
   // disconnecting silences a click that has not sounded yet (used when a song stops during its count-in)
   return {end:t+.1,stop(){try{g.disconnect()}catch(e){}}};
 }

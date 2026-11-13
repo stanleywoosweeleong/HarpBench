@@ -27,7 +27,7 @@ const codeLabel=c=>CODE_LABEL[c]||c.replace(/^(Key|Digit)/,'');
 const BEND_CODES={KeyZ:1,KeyX:2,KeyC:3};
 
 const state={type:'diatonic',key:0,rootOff:7,scale:'blues',mouth:'1',labels:'notes',overblows:false,snap:true,
-  vol:.72,tone:.5,room:.28,vibrato:false,breathMode:'split',pocket:'auto',lang:'',voice:'sweet',keys:'numbers',song:'amazing',songRate:1,notation:'letters',verse:0,songClick:true,countIn:true,backing:true,guide:false,loopLine:false,backVol:.6,progress:{},micGate:.01,userSongs:[],bpm:90,beats:4,feel:'straight',click:.6};
+  vol:.72,tone:.5,room:.28,vibrato:false,breathMode:'split',pocket:'auto',lang:'',voice:'sweet',keys:'numbers',song:'amazing',songRate:1,notation:'letters',verse:0,songClick:true,countIn:true,backing:true,guide:false,loopLine:false,backVol:.6,progress:{},micGate:.01,recClicks:false,recMic:true,userSongs:[],bpm:90,beats:4,feel:'straight',click:.6};
 try{const s=JSON.parse(localStorage.getItem('harpbench')||'null'); if(s) Object.assign(state,s,{vibrato:false});}catch(e){}
 function save(){try{localStorage.setItem('harpbench',JSON.stringify(state))}catch(e){}}
 
@@ -72,7 +72,7 @@ function resolve(hi,breath,bend,alt){
 function chipKey(s){return s.hi+'|'+s.breath+'|'+Math.round(s.bend)+'|'+(s.alt?1:0)}
 
 /* ---------- audio ---------- */
-let ctx=null,bus,hand,handGain,wetGain,vibAmp,vibPitch,drift,noiseBuf,out,sat,eqHi,eqShelf,conv,backBus;
+let ctx=null,bus,hand,handGain,wetGain,vibAmp,vibPitch,drift,noiseBuf,out,sat,eqHi,eqShelf,conv,backBus,clickBus;
 /* Voice presets. Each reed is one oscillator: det = tuning offset in cents, pan = stereo position, g = level.
    exp = harmonic roll-off (more negative = rounder), comb = reed-slot coloration, drive = saturation,
    bright = filter opening, breath = air noise, hi = presence EQ in dB. */
@@ -151,6 +151,8 @@ function initAudio(){
   handGain.connect(comp); handGain.connect(conv).connect(wetGain).connect(comp); comp.connect(out).connect(ctx.destination);
   // backing harmony skips the harmonica's tone shaping but shares the room and the limiter
   backBus=ctx.createGain(); backBus.gain.value=1; backBus.connect(comp); backBus.connect(conv);
+  // metronome clicks have their own path, so a recording can leave them out
+  clickBus=ctx.createGain(); clickBus.connect(ctx.destination);
   const lfo=ctx.createOscillator(); lfo.frequency.value=5.3;
   vibAmp=ctx.createGain(); vibAmp.gain.value=0; vibPitch=ctx.createGain(); vibPitch.gain.value=0;
   lfo.connect(vibAmp); lfo.connect(vibPitch); lfo.start();
@@ -171,7 +173,7 @@ let audioActiveAt=0;
 function markAudio(){ if(typeof performance!=='undefined') audioActiveAt=performance.now(); }
 function audioBusy(){
   return touches.size>0||(typeof tp!=='undefined'&&tp.on)||(typeof metro!=='undefined'&&metro.on)
-    ||(typeof mic!=='undefined'&&mic.on)||(typeof mh!=='undefined'&&!!mh.rec);
+    ||(typeof mic!=='undefined'&&mic.on)||(typeof mh!=='undefined'&&!!mh.rec)||(typeof rec!=='undefined'&&rec.on);
 }
 function audioRest(){
   // stop everything and let the phone release the audio (used by the Now Playing pause button)
