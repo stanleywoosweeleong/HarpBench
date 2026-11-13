@@ -18,17 +18,28 @@ async function micStart(){
   if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){
     micMsg('The microphone is not available here. Open Harp Bench from its installed app or GitHub Pages address to use it.'); return;
   }
+  if(mic.on||mic.starting) return;          // a second press while the permission prompt is open must not start a second stream
   initAudio(); if(!ctx) return;
+  mic.starting=true; mic.cancel=false; micButtons();
   try{ if(navigator.audioSession) navigator.audioSession.type='play-and-record'; }catch(e){}
+  let stream;
   try{
-    mic.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
   }catch(e){
+    mic.starting=false; micButtons();
     try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(_){}
     micMsg(e&&e.name==='NotAllowedError'
       ?'Microphone access was refused. Allow it for this site (on iPhone: Settings, Safari, Microphone), then press the button again.'
       :'The microphone could not start'+(e&&e.message?': '+e.message:'.'));
     return;
   }
+  mic.starting=false;
+  if(mic.cancel){                             // the player pressed Stop while the prompt was open
+    stream.getTracks().forEach(t=>t.stop());
+    try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
+    micMsg('Microphone off.'); micButtons(); return;
+  }
+  mic.stream=stream;
   if(ctx.state!=='running') ctx.resume();
   mic.src=ctx.createMediaStreamSource(mic.stream);
   mic.an=ctx.createAnalyser(); mic.an.fftSize=2048; mic.src.connect(mic.an);
@@ -47,9 +58,9 @@ function micStop(){
   try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
   micRelease(); micTuner(0); micMsg('Microphone off.'); micButtons();
 }
-function micToggle(){ mic.on?micStop():micStart(); }
+function micToggle(){ if(mic.starting){ mic.cancel=true; return; } mic.on?micStop():micStart(); }
 function micButtons(){
-  $('micBtn').setAttribute('aria-pressed',mic.on); $('micBtn').textContent=mic.on?'Stop microphone':'Use microphone';
+  $('micBtn').setAttribute('aria-pressed',mic.on); $('micBtn').textContent=mic.starting?(mic.cancel?'Microphone off.':'Starting microphone…'):mic.on?'Stop microphone':'Use microphone';
   const pk=document.getElementById('pkMic'); if(pk) pk.textContent=mic.on?'Microphone: on':'Microphone: off';
 }
 function micRelease(){

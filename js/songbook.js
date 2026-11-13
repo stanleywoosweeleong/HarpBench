@@ -165,7 +165,12 @@ $('sbBackVol').addEventListener('input',e=>{state.backVol=+e.target.value; save(
 $('sbVerse').addEventListener('change',e=>{state.verse=+e.target.value; save(); renderSongbook();});
 $('sbPractice').addEventListener('click',songPractice);
 $('sbRestart').addEventListener('click',()=>{const m=song.mode; songStop(); song.pos=0; song.picked=false; if(m==='practice') songPractice(); else if(m==='listen') tpStart('listen'); else if(m==='along') tpStart('along'); else songMark();});
-[...$('sbSpeed').children].forEach(b=>b.addEventListener('click',()=>{state.songRate=+b.dataset.r; save(); renderSongbook();}));
+function songSetRate(r){
+  // a playing song restarts from the line it is on, at the new speed (its timing is scheduled ahead on the audio clock)
+  state.songRate=r; save(); renderSongbook();
+  if(tp.on){ const m=tp.mode; song.picked=true; songStop(); tpStart(m); }
+}
+[...$('sbSpeed').children].forEach(b=>b.addEventListener('click',()=>songSetRate(+b.dataset.r)));
 [...$('sbNotation').children].forEach(b=>b.addEventListener('click',()=>{state.notation=b.dataset.n; save(); renderSongbook();}));
 $('pkSongStop').addEventListener('click',()=>songStop());
 /* ---------- importing your own songs (ABC notation) ---------- */

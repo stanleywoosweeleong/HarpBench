@@ -110,7 +110,7 @@ function renderPocketSheet(){
      const b=document.createElement('button'); b.className='btn'; b.textContent=label; b.setAttribute('aria-pressed',!!state[key]);
      b.addEventListener('click',()=>{state[key]=!state[key]; save(); b.setAttribute('aria-pressed',state[key]); renderSongbook();}); row.appendChild(b);}
    opt.appendChild(row); c.appendChild(opt);
-   c.appendChild(seg('Speed',[[0.5,'50%'],[0.75,'75%'],[1,'100%']],state.songRate,v=>{state.songRate=+v; save(); renderSongbook(); renderPocketSheet();}));
+   c.appendChild(seg('Speed',[[0.5,'50%'],[0.75,'75%'],[1,'100%']],state.songRate,v=>{songSetRate(+v); renderPocketSheet();}));
    if(song.cur&&song.cur.verses.length>1) c.appendChild(seg('Lyrics',song.cur.verses.map((_,i)=>[i,'Verse '+(i+1)]),state.verse,v=>{state.verse=+v; save(); renderSongbook(); renderPocketSheet();}));
    const mb=document.createElement('button'); mb.className='btn'; mb.id='pkMic'; mb.textContent=mic.on?'Microphone: on':'Microphone: off'; mb.addEventListener('click',micToggle); c.appendChild(mb);
    // songs first: on a phone this is what the sheet is mostly opened for

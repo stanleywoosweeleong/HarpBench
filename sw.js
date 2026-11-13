@@ -1,6 +1,6 @@
 /* Harp Bench service worker: caches the whole app so it plays offline.
    Bump VERSION whenever any file changes so installed copies update. */
-const VERSION = 'harpbench-v1.13.1';
+const VERSION = 'harpbench-v1.13.2';
 const ASSETS = [
   './',
   'index.html',
@@ -42,7 +42,8 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k))))
+      // Cache Storage is shared by every app on stanleywoosweeleong.github.io: delete only Harp Bench's old caches
+      .then(keys => Promise.all(keys.filter(k => k.startsWith('harpbench-') && k !== VERSION).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -57,27 +58,13 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
+  // Everything comes from this release's own cache, so the page and its scripts always match. A new release is
+  // fetched by the next service worker and takes over when the player taps Update. (caches.match() on its own would
+  // also search other apps' caches on this domain.)
+  const fromRelease = key => caches.open(VERSION).then(c => c.match(key, { ignoreSearch: true }));
   if (req.mode === 'navigate') {
-    // App shell: serve the cached page instantly, refresh it in the background.
-    event.respondWith(
-      caches.match('index.html').then(cached => {
-        const fresh = fetch(req).then(res => {
-          if (res.ok) caches.open(VERSION).then(c => c.put('index.html', res.clone()));
-          return res;
-        }).catch(() => cached);
-        return cached || fresh;
-      })
-    );
+    event.respondWith(fromRelease('index.html').then(hit => hit || fetch(req)));
     return;
   }
-
-  event.respondWith(
-    caches.match(req, { ignoreSearch: true }).then(cached => cached || fetch(req).then(res => {
-      if (res.ok && res.type === 'basic') {
-        const copy = res.clone();
-        caches.open(VERSION).then(c => c.put(req, copy));
-      }
-      return res;
-    }))
-  );
+  event.respondWith(fromRelease(req).then(hit => hit || fetch(req)));
 });

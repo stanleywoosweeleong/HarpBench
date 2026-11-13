@@ -96,6 +96,7 @@ const T={
  ['吹奏你的真口琴。调音器会显示音名、偏差多少，以及它在这把口琴上是哪个孔。麦克风开启时，“练习”和“跟奏”会听你吹。','Mainkan harmonika sebenar anda. Penala menunjukkan not, berapa jauh ia lari, dan lubang mana pada harmonika ini. Semasa mikrofon dihidupkan, Latihan dan Main bersama mendengar anda.'],
 'Use microphone':['使用麦克风','Guna mikrofon'],
 'Stop microphone':['关闭麦克风','Hentikan mikrofon'],
+'Starting microphone…':['正在启动麦克风……','Memulakan mikrofon…'],
 'Ignore sounds below':['忽略低于此音量','Abaikan bunyi di bawah'],
 'Works in the installed app. Use headphones when Listen or the harmony is playing, or the microphone will hear the app.':
  ['在已安装的应用中可用。播放“试听”或和声时请戴耳机，否则麦克风会听到应用本身的声音。','Berfungsi dalam aplikasi yang dipasang. Guna fon kepala semasa Dengar atau harmoni dimainkan, jika tidak mikrofon akan mendengar aplikasi.'],
