@@ -52,6 +52,11 @@ function recToggle(){ rec.on?recStop():recStart(); }
 
 /* ---------- sharing and saving ---------- */
 async function recShare(take){
+  // The Claude artifact preview cannot hand out audio files; say so instead of offering a link that does nothing.
+  if(window.claude&&typeof window.claude.use==='function'){
+    const m='Saving recordings works in the installed Harp Bench app or on its GitHub Pages address. This preview can only play takes.';
+    $('recMsg').textContent=m; const n=document.getElementById('recDlgNote'); if(n) n.textContent=m; return;
+  }
   const file=new File([take.blob],take.name,{type:'audio/wav'});
   if(navigator.canShare&&navigator.canShare({files:[file]})){
     try{ await navigator.share({files:[file],title:take.name}); return; }

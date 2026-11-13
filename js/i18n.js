@@ -233,6 +233,7 @@ const T={
 'No recordings yet. Press Record, play, then press Stop recording. Takes are kept until you close the app, so share or save the ones you want.':
  ['还没有录音。按“录音”，吹奏，再按“停止录音”。录音会保留到你关闭应用为止，请把想保留的分享或保存。','Belum ada rakaman. Tekan Rakam, main, kemudian tekan Hentikan rakaman. Rakaman disimpan sehingga anda menutup aplikasi, jadi kongsi atau simpan yang anda mahu.'],
 'Recording ready':['录音完成','Rakaman sedia'],
+'Saving recordings works in the installed Harp Bench app or on its GitHub Pages address. This preview can only play takes.':['保存录音需在已安装的 Harp Bench 应用或其 GitHub Pages 网址中进行；此预览只能播放录音。','Menyimpan rakaman berfungsi dalam aplikasi Harp Bench yang dipasang atau di alamat GitHub Pages. Pratonton ini hanya boleh memainkan rakaman.'],
 'Share or save':['分享或保存','Kongsi atau simpan'],
 'Delete':['删除','Padam'],
 'Close':['关闭','Tutup'],
