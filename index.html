@@ -24,7 +24,7 @@
     <div class="brand">
       <h1>Harp Bench</h1>
       <p>A playable 10-hole diatonic and 12-hole chromatic harmonica. Blow, draw, bend, overblow, slide and play chords in any key.</p>
-      <div class="app-bar"><button class="btn" id="installBtn" hidden>Install app</button><span class="offline-pill" id="offlinePill" hidden>Ready offline</span></div>
+      <div class="app-bar"><button class="btn" id="installBtn" hidden>Install app</button><button class="btn" id="shareBtn" aria-haspopup="dialog">Share this app</button><span class="offline-pill" id="offlinePill" hidden>Ready offline</span></div>
       <div class="install-tip" id="iosHint" hidden role="note" aria-labelledby="iosHintTitle">
         <b id="iosHintTitle">Install Harp Bench on your iPhone</b>
         <p id="iosInApp" hidden>This page is open inside another app, which can't add apps to the Home Screen. Open it in Safari first: use the app's “Open in Safari” or browser button, or copy the address into Safari.</p>
@@ -266,6 +266,16 @@
     <p class="audio-note" id="recDlgNote">On iPhone, Share opens the share sheet: choose Save to Files, AirDrop, or an app such as GarageBand, AUM or AudioShare.</p>
   </div>
 </div>
+<div class="rec-dialog" id="shareDialog" hidden role="dialog" aria-modal="true" aria-labelledby="shareDlgTitle">
+  <div class="rec-card share-card">
+    <h2 id="shareDlgTitle">Share Harp Bench</h2>
+    <p class="share-lead">Scan this code with a phone camera to open Harp Bench and play, or send the link to a friend.</p>
+    <!-- qr:start --><svg class="qr" viewBox="0 0 41 41" role="img" aria-label="QR code that opens Harp Bench" shape-rendering="crispEdges"><rect width="41" height="41" fill="#fff"/><path fill="#000" d="M4 4h7v1h-7zM12 4h2v1h-2zM17 4h1v1h-1zM20 4h5v1h-5zM27 4h1v1h-1zM30 4h7v1h-7zM4 5h1v1h-1zM10 5h1v1h-1zM12 5h4v1h-4zM17 5h1v1h-1zM20 5h1v1h-1zM22 5h1v1h-1zM25 5h3v1h-3zM30 5h1v1h-1zM36 5h1v1h-1zM4 6h1v1h-1zM6 6h3v1h-3zM10 6h1v1h-1zM14 6h1v1h-1zM19 6h1v1h-1zM21 6h1v1h-1zM23 6h2v1h-2zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM32 6h3v1h-3zM36 6h1v1h-1zM4 7h1v1h-1zM6 7h3v1h-3zM10 7h1v1h-1zM12 7h5v1h-5zM18 7h3v1h-3zM24 7h1v1h-1zM26 7h3v1h-3zM30 7h1v1h-1zM32 7h3v1h-3zM36 7h1v1h-1zM4 8h1v1h-1zM6 8h3v1h-3zM10 8h1v1h-1zM13 8h1v1h-1zM17 8h2v1h-2zM21 8h1v1h-1zM24 8h1v1h-1zM28 8h1v1h-1zM30 8h1v1h-1zM32 8h3v1h-3zM36 8h1v1h-1zM4 9h1v1h-1zM10 9h1v1h-1zM14 9h1v1h-1zM17 9h1v1h-1zM22 9h3v1h-3zM28 9h1v1h-1zM30 9h1v1h-1zM36 9h1v1h-1zM4 10h7v1h-7zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h1v1h-1zM28 10h1v1h-1zM30 10h7v1h-7zM12 11h1v1h-1zM14 11h1v1h-1zM16 11h1v1h-1zM21 11h2v1h-2zM24 11h1v1h-1zM26 11h3v1h-3zM4 12h1v1h-1zM6 12h2v1h-2zM9 12h3v1h-3zM15 12h2v1h-2zM18 12h1v1h-1zM20 12h4v1h-4zM25 12h1v1h-1zM30 12h1v1h-1zM33 12h1v1h-1zM35 12h2v1h-2zM4 13h2v1h-2zM7 13h1v1h-1zM11 13h5v1h-5zM18 13h1v1h-1zM20 13h1v1h-1zM22 13h6v1h-6zM30 13h2v1h-2zM33 13h2v1h-2zM36 13h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM10 14h3v1h-3zM18 14h1v1h-1zM21 14h1v1h-1zM25 14h1v1h-1zM27 14h1v1h-1zM31 14h3v1h-3zM35 14h2v1h-2zM8 15h1v1h-1zM14 15h2v1h-2zM17 15h3v1h-3zM22 15h1v1h-1zM24 15h1v1h-1zM27 15h3v1h-3zM31 15h1v1h-1zM33 15h1v1h-1zM4 16h4v1h-4zM9 16h2v1h-2zM12 16h1v1h-1zM15 16h1v1h-1zM22 16h1v1h-1zM26 16h4v1h-4zM31 16h1v1h-1zM33 16h1v1h-1zM35 16h1v1h-1zM4 17h1v1h-1zM6 17h1v1h-1zM8 17h2v1h-2zM12 17h3v1h-3zM16 17h2v1h-2zM20 17h1v1h-1zM22 17h1v1h-1zM25 17h1v1h-1zM28 17h1v1h-1zM31 17h1v1h-1zM33 17h1v1h-1zM35 17h1v1h-1zM4 18h1v1h-1zM6 18h3v1h-3zM10 18h2v1h-2zM15 18h3v1h-3zM19 18h2v1h-2zM22 18h1v1h-1zM26 18h1v1h-1zM30 18h2v1h-2zM34 18h1v1h-1zM7 19h2v1h-2zM11 19h2v1h-2zM14 19h2v1h-2zM18 19h1v1h-1zM20 19h1v1h-1zM22 19h9v1h-9zM32 19h1v1h-1zM34 19h1v1h-1zM5 20h1v1h-1zM7 20h1v1h-1zM10 20h3v1h-3zM18 20h2v1h-2zM22 20h2v1h-2zM25 20h3v1h-3zM29 20h2v1h-2zM32 20h3v1h-3zM4 21h3v1h-3zM9 21h1v1h-1zM13 21h1v1h-1zM15 21h1v1h-1zM17 21h1v1h-1zM19 21h3v1h-3zM24 21h2v1h-2zM27 21h2v1h-2zM30 21h1v1h-1zM32 21h2v1h-2zM36 21h1v1h-1zM6 22h2v1h-2zM10 22h1v1h-1zM17 22h5v1h-5zM24 22h2v1h-2zM31 22h2v1h-2zM34 22h2v1h-2zM8 23h2v1h-2zM13 23h2v1h-2zM16 23h5v1h-5zM23 23h2v1h-2zM27 23h1v1h-1zM29 23h2v1h-2zM32 23h1v1h-1zM36 23h1v1h-1zM4 24h1v1h-1zM7 24h1v1h-1zM10 24h4v1h-4zM16 24h1v1h-1zM18 24h1v1h-1zM22 24h5v1h-5zM33 24h4v1h-4zM4 25h2v1h-2zM7 25h2v1h-2zM11 25h3v1h-3zM16 25h4v1h-4zM22 25h1v1h-1zM25 25h1v1h-1zM29 25h3v1h-3zM33 25h1v1h-1zM36 25h1v1h-1zM6 26h1v1h-1zM10 26h1v1h-1zM12 26h2v1h-2zM15 26h1v1h-1zM17 26h1v1h-1zM20 26h3v1h-3zM25 26h3v1h-3zM30 26h7v1h-7zM5 27h1v1h-1zM7 27h1v1h-1zM9 27h1v1h-1zM11 27h2v1h-2zM14 27h3v1h-3zM20 27h1v1h-1zM22 27h2v1h-2zM30 27h2v1h-2zM33 27h1v1h-1zM35 27h1v1h-1zM4 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM12 28h1v1h-1zM18 28h2v1h-2zM21 28h1v1h-1zM24 28h1v1h-1zM26 28h1v1h-1zM28 28h5v1h-5zM12 29h1v1h-1zM14 29h2v1h-2zM17 29h1v1h-1zM19 29h3v1h-3zM23 29h1v1h-1zM25 29h1v1h-1zM27 29h2v1h-2zM32 29h2v1h-2zM4 30h7v1h-7zM12 30h2v1h-2zM20 30h1v1h-1zM23 30h3v1h-3zM27 30h2v1h-2zM30 30h1v1h-1zM32 30h1v1h-1zM4 31h1v1h-1zM10 31h1v1h-1zM12 31h2v1h-2zM17 31h2v1h-2zM20 31h1v1h-1zM23 31h6v1h-6zM32 31h3v1h-3zM4 32h1v1h-1zM6 32h3v1h-3zM10 32h1v1h-1zM13 32h4v1h-4zM19 32h1v1h-1zM21 32h1v1h-1zM23 32h2v1h-2zM27 32h6v1h-6zM34 32h3v1h-3zM4 33h1v1h-1zM6 33h3v1h-3zM10 33h1v1h-1zM12 33h3v1h-3zM16 33h1v1h-1zM18 33h1v1h-1zM21 33h6v1h-6zM31 33h1v1h-1zM34 33h1v1h-1zM36 33h1v1h-1zM4 34h1v1h-1zM6 34h3v1h-3zM10 34h1v1h-1zM12 34h1v1h-1zM14 34h3v1h-3zM21 34h1v1h-1zM23 34h1v1h-1zM26 34h6v1h-6zM33 34h2v1h-2zM4 35h1v1h-1zM10 35h1v1h-1zM13 35h5v1h-5zM19 35h5v1h-5zM26 35h1v1h-1zM28 35h1v1h-1zM30 35h3v1h-3zM36 35h1v1h-1zM4 36h7v1h-7zM12 36h2v1h-2zM17 36h6v1h-6zM25 36h1v1h-1zM27 36h1v1h-1zM29 36h2v1h-2zM32 36h1v1h-1zM34 36h1v1h-1z"/></svg><!-- qr:end -->
+    <code class="share-url" id="shareUrl" data-i18n-skip></code>
+    <div class="rec-acts"><a class="btn share-wa" id="shareWa" target="_blank" rel="noopener">Send on WhatsApp</a><button class="btn" id="shareCopy">Copy link</button><button class="btn" id="shareMore" hidden>More ways to share</button><button class="btn" id="shareClose">Close</button></div>
+    <p class="audio-note" id="shareMsg" role="status"></p>
+  </div>
+</div>
 <div class="pocket" id="pocket" hidden>
   <div class="pk-bar">
     <span class="pk-key" id="pkKey">C</span>
@@ -317,6 +327,7 @@
 <script src="js/mic.js"></script>
 <script src="js/sampler.js"></script>
 <script src="js/recorder.js"></script>
+<script src="js/share.js"></script>
 <script src="js/main.js"></script>
 <script src="pwa.js"></script>
 </body>

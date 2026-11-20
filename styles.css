@@ -453,3 +453,13 @@ html.pocket-open, html.pocket-open body{overflow:hidden;height:100%;overscroll-b
 .pk-rec[aria-pressed="true"]{border-color:#E8796D;color:#E8796D}
 .pk-rec[aria-pressed="true"] .rec-dot{border-radius:2px;animation:recpulse 1s ease-in-out infinite}
 .rec-card .rec-meta{flex:none}
+
+/* share this app */
+.share-card{align-items:center;text-align:center}
+.share-lead{margin:0;color:var(--muted);font-size:14px;max-width:38ch}
+.qr{width:min(240px,62vw);height:auto;border-radius:10px;border:1px solid var(--line);flex:none}
+.share-url{font-family:var(--f-mono);font-size:13px;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all;padding:6px 10px;border:1px dashed var(--line);border-radius:8px}
+.share-card .rec-acts{justify-content:center}
+a.btn{text-decoration:none;display:inline-flex;align-items:center}
+.share-wa{background:#1F8F4E;border-color:#1F8F4E;color:#fff}
+.share-card .audio-note{min-height:1.4em;margin:0}

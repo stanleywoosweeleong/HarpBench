@@ -232,6 +232,17 @@ const T={
 'When the microphone is on, your real harmonica is recorded too':['麦克风开启时，也会录下你的真口琴','Apabila mikrofon hidup, harmonika sebenar anda turut dirakam'],
 'No recordings yet. Press Record, play, then press Stop recording. Takes are kept until you close the app, so share or save the ones you want.':
  ['还没有录音。按“录音”，吹奏，再按“停止录音”。录音会保留到你关闭应用为止，请把想保留的分享或保存。','Belum ada rakaman. Tekan Rakam, main, kemudian tekan Hentikan rakaman. Rakaman disimpan sehingga anda menutup aplikasi, jadi kongsi atau simpan yang anda mahu.'],
+// share this app
+'Share this app':['分享此应用','Kongsi aplikasi ini'],
+'Share Harp Bench':['分享 Harp Bench','Kongsi Harp Bench'],
+'Scan this code with a phone camera to open Harp Bench and play, or send the link to a friend.':['用手机相机扫描此二维码即可打开 Harp Bench 开始吹奏，也可以把链接发给朋友。','Imbas kod ini dengan kamera telefon untuk membuka Harp Bench dan bermain, atau hantar pautan kepada rakan.'],
+'QR code that opens Harp Bench':['打开 Harp Bench 的二维码','Kod QR yang membuka Harp Bench'],
+'Send on WhatsApp':['用 WhatsApp 发送','Hantar melalui WhatsApp'],
+'Copy link':['复制链接','Salin pautan'],
+'More ways to share':['更多分享方式','Cara lain untuk berkongsi'],
+'Link copied.':['链接已复制。','Pautan disalin.'],
+'Could not copy the link here. Select the address above and copy it.':['无法在此复制链接。请选中上面的网址再复制。','Tidak dapat menyalin pautan di sini. Pilih alamat di atas dan salin.'],
+'Play the harmonica on your phone or computer with Harp Bench:':['用 Harp Bench 在手机或电脑上吹口琴：','Main harmonika pada telefon atau komputer anda dengan Harp Bench:'],
 'Recording ready':['录音完成','Rakaman sedia'],
 'Saving recordings works in the installed Harp Bench app or on its GitHub Pages address. This preview can only play takes.':['保存录音需在已安装的 Harp Bench 应用或其 GitHub Pages 网址中进行；此预览只能播放录音。','Menyimpan rakaman berfungsi dalam aplikasi Harp Bench yang dipasang atau di alamat GitHub Pages. Pratonton ini hanya boleh memainkan rakaman.'],
 'Share or save':['分享或保存','Kongsi atau simpan'],
