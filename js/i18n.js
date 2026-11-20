@@ -21,6 +21,11 @@ const T={
 'Turn it sideways and it becomes the harmonica.':['把手机横过来，它就变成口琴。','Pusingkan ke sisi dan ia menjadi harmonika.'],
 'Phone harp mode':['手机口琴模式','Mod harmonika telefon'],
 'Language':['语言','Bahasa'],
+'Appearance':['外观','Penampilan'],
+'Auto':['自动','Automatik'],
+'Light':['浅色','Cerah'],
+'Dark':['深色','Gelap'],
+"Follow this device's light or dark setting":['跟随此设备的浅色或深色设置','Ikut tetapan cerah atau gelap peranti ini'],
 // install cards
 'Install Harp Bench on your iPhone':['在 iPhone 上安装 Harp Bench','Pasang Harp Bench pada iPhone anda'],
 "This page is open inside another app, which can't add apps to the Home Screen. Open it in Safari first: use the app's “Open in Safari” or browser button, or copy the address into Safari.":

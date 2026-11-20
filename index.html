@@ -7,6 +7,8 @@
 <meta name="description" content="A playable diatonic and chromatic harmonica with bends, overblows, chords, a metronome and a phone mode that turns a sideways phone into the instrument. Works offline.">
 <meta name="theme-color" content="#E3E7ED" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0E1219" media="(prefers-color-scheme: dark)">
+<script>/* apply a saved light/dark choice before the first paint; js/theme.js takes over from here */
+try{var t=JSON.parse(localStorage.getItem('harpbench')||'{}').theme;if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;document.documentElement.dataset.themeSet='1'}}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
@@ -59,6 +61,13 @@
         <button data-lang="en" lang="en" aria-pressed="true">English</button>
         <button data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
         <button data-lang="ms" lang="ms" aria-pressed="false">Bahasa Melayu</button>
+      </div>
+    </div>
+    <div class="ctl"><span class="lbl">Appearance</span>
+      <div class="seg" id="themeSeg">
+        <button data-theme-pick="auto" aria-pressed="true" title="Follow this device's light or dark setting">Auto</button>
+        <button data-theme-pick="light" aria-pressed="false">Light</button>
+        <button data-theme-pick="dark" aria-pressed="false">Dark</button>
       </div>
     </div>
     <div class="ctl"><span class="lbl">Instrument</span>
@@ -315,6 +324,7 @@
 </div>
 <script src="songs.js"></script>
 <script src="js/core.js"></script>
+<script src="js/theme.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/pitch.js"></script>
 <script src="js/theory.js"></script>

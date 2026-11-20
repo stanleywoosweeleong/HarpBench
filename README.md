@@ -115,6 +115,7 @@ Then open <http://localhost:8000>. Service workers need `http://localhost` or HT
 - `js/main.js`: start-up
 - `tools/build_songs.py`, `tools/abcparse.py`, `tools/openhymnal/`: rebuild `songs.js` from the Open Hymnal sources
 - `pwa.js`, `sw.js`, `manifest.webmanifest`, `icons/`: install and offline support
+- `js/theme.js`: the **Appearance** switch (Auto, Light, Dark). The colours for both themes are in `styles.css`
 - `js/share.js`: the **Share this app** dialog (QR code, WhatsApp, copy link). The QR code is drawn into `index.html` by `tools/build_qr.py`; run that again if the app's address changes
 - `fonts/`: self-hosted Big Shoulders Display, IBM Plex Sans and IBM Plex Mono (SIL Open Font License 1.1)
 - `tests/`: Node tests (`npm test`)
