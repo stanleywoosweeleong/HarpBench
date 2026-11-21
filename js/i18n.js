@@ -12,7 +12,6 @@ const T={
 'A playable 10-hole diatonic and 12-hole chromatic harmonica. Blow, draw, bend, overblow, slide and play chords in any key.':
  ['可弹奏的十孔布鲁斯口琴与十二孔半音阶口琴。吹、吸、压音、超吹、按键变音，任何调都能弹和弦。','Harmonika diatonik 10 lubang dan kromatik 12 lubang yang boleh dimainkan. Tiup, sedut, lentur, tiup lampau, slaid dan mainkan kord dalam apa-apa kunci.'],
 'Install app':['安装应用','Pasang aplikasi'],
-'Ready offline':['可离线使用','Sedia luar talian'],
 'Sounding':['正在发声','Berbunyi'],
 'Harp tab':['口琴谱','Tab harmonika'],
 'tap a hole':['点一个孔','ketik satu lubang'],

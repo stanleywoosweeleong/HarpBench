@@ -16,7 +16,6 @@
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').then(reg => {
-        navigator.serviceWorker.ready.then(() => { $('offlinePill').hidden = false; });
         if (reg.waiting && navigator.serviceWorker.controller) showUpdate(reg.waiting);
         reg.addEventListener('updatefound', () => {
           const w = reg.installing; if (!w) return;
